@@ -12,6 +12,7 @@ import {
 } from './storyUtils';
 import { Pitling } from '@/presets/fighters/Pitling';
 import { Collector } from '@/presets/fighters/Collector';
+import { Dev } from '@/presets/fighters/Dev';
 
 const meta: Meta<typeof StageComponent> = {
 	component: StageComponent,
@@ -24,11 +25,11 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {
-	args: {
-		stage: new Stage(),
-	},
-};
+// export const Playground: Story = {
+// 	args: {
+// 		stage: new Stage(),
+// 	},
+// };
 
 export const Random: Story = {
 	render() {
@@ -102,7 +103,7 @@ export const Targeting: Story = {
 		const stage = useConst(() => {
 			const s = new Stage();
 
-			s.friendly.addAll(new Collector());
+			s.friendly.addAll(new Dev(), new Collector());
 
 			s.hostile.addAll(
 				new Pitling().set({ color: new Color(0xff0000) }),

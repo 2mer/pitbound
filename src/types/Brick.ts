@@ -8,6 +8,9 @@ import { Keyword } from './Keyword';
 import EventEmitter from 'eventemitter3';
 import { Component, ComponentSystem } from './Component';
 import { Nested } from './Nested';
+import { Ability } from './Ability';
+import { Usable } from '@/presets/components/Usable';
+import { playSound } from '@/utils/SoundPlayer';
 
 export type ActionCtx = {
 	stage: Stage;
@@ -28,12 +31,16 @@ export class Brick extends Nested<Fighter> {
 	effects = new ComponentSystem<Effect<Brick>>();
 	keywords = new ComponentSystem<Keyword<Brick>>();
 	components = new ComponentSystem<Component<Brick>>();
+	abilities = new ComponentSystem<Ability<Brick>>();
 	events = new EventEmitter<Events>();
+
+	$usable = this.components.addChild(new Usable<Brick>())
 
 	related = [
 		this.effects,
 		this.keywords,
 		this.components,
+		this.abilities,
 	] as Nested<this>[]
 
 	id = v4();
@@ -104,11 +111,8 @@ export class Brick extends Nested<Fighter> {
 			}
 
 			this.fighter.update();
+			playSound('hurt');
 		}
-	}
-
-	public onClick() {
-
 	}
 
 	public onDeath(ctx: Ctx<'death'>) {
@@ -119,14 +123,11 @@ export class Brick extends Nested<Fighter> {
 		return this.width;
 	}
 
-	public set<T extends Partial<this>>(data: T) {
-		Object.assign(this, data);
-
-		return this;
-	}
-
 	public canClick(): boolean {
-		return false;
+		const allAbilities = this.abilities.values();
+		if (!allAbilities.length) return false;
+
+		return allAbilities.some(a => a.canClick());
 	}
 
 	getDescription() {

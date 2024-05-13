@@ -17,7 +17,7 @@ export class Fighter extends Nested<Stage> {
 	id = v4();
 	effects = new ComponentSystem<Effect<Fighter>>();
 	inventory = new ComponentSystem<Item<Fighter>>();
-	bricks = new Children<Brick>();
+	bricks = new ComponentSystem<Brick>();
 	events = new EventEmitter<FighterEvents>();
 
 	height: number = 64;
@@ -48,12 +48,6 @@ export class Fighter extends Nested<Stage> {
 
 	update() {
 		this.events.emit('update');
-	}
-
-	public set<T extends Partial<this>>(data: T) {
-		Object.assign(this, data);
-
-		return this;
 	}
 
 	getLivingBricks() {

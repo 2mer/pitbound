@@ -29,8 +29,27 @@ export class ComponentSystem<T extends Component<any>> extends Children<T> {
 		return this.typeHash.getAll(clzz) as any;
 	}
 
+	getPattern<C extends typeof Component<any>[]>(pattern: C): ClassesToInstances<C> {
+		const clzzToIndex = new Map<Object, number>();
+
+		const res: any[] = [];
+
+		pattern.forEach(clzz => {
+			const index = clzzToIndex.get(clzz) ?? 0;
+
+			res.push(this.getAllT(clzz)?.[index]);
+
+			clzzToIndex.set(clzz, index + 1);
+		})
+
+		return res as any;
+	}
+
 	clear(): void {
 		super.clear();
 		this.typeHash.clear();
 	}
 }
+
+
+type ClassesToInstances<T extends [...(abstract new (...args: any) => any)[]]> = { [key in keyof T]: InstanceType<T[key]> } & { length: T['length'] };

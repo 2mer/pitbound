@@ -1,6 +1,5 @@
-import { Brick } from "@/types/Brick";
 import { Component } from "@/types/Component";
 
-export class Attacker extends Component<Brick> {
+export class Attacker extends Component<any> {
 	attack = 1;
 }

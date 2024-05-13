@@ -1,7 +1,8 @@
-import { Brick } from "@/types/Brick";
 import { Component } from "@/types/Component";
+import { Fighter } from "@/types/Fighter";
+import { Stage } from "@/types/Stage";
 
-export class Usable extends Component<Brick> {
+export class Usable<T> extends Component<T> {
 	uses = 1;
 	baseUses = 1;
 
@@ -19,18 +20,18 @@ export class Usable extends Component<Brick> {
 
 	public onTurnStart() {
 		this.reset();
-		this.parent!.fighter.update();
+		this.closest(Fighter)!.update();
 	}
 
-	onAdded(target: Brick): void {
+	onAdded(target: T): void {
 		super.onAdded(target);
 
-		target.stage.events.on('turnStart', this.onTurnStart, this)
+		this.closest(Stage)!.events.on('turnStart', this.onTurnStart, this)
 	}
 
-	onRemoved(target: Brick): void {
+	onRemoved(target: T): void {
 		super.onAdded(target);
 
-		target.stage.events.off('turnStart', this.onTurnStart, this)
+		this.closest(Stage)!.events.off('turnStart', this.onTurnStart, this)
 	}
 }

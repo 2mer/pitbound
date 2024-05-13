@@ -22,6 +22,34 @@ export class Nested<TParent> {
 			this.related.forEach(r => r.onRemoved(this));
 		}
 	}
+
+	closest<C extends abstract new (...args: any) => any>(clzz: C): InstanceType<C> | undefined {
+		if (!this.parent) return undefined;
+
+		if ((this.parent as any) instanceof clzz) {
+			return this.parent as InstanceType<C>;
+		}
+
+		if (this.parent instanceof Nested) {
+			return this.parent.closest(clzz)
+		}
+
+		return undefined;
+	}
+
+
+	// util
+
+	transform(cb: (v: this) => void) {
+		cb(this);
+		return this;
+	}
+
+	public set<T extends Partial<this>>(data: T) {
+		Object.assign(this, data);
+
+		return this;
+	}
 }
 
 type NestedParent<T extends Nested<any>> = T extends Nested<infer R> ? R : never;
