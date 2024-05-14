@@ -1,14 +1,15 @@
-import styled, { useTheme } from 'styled-components';
 import { Fighter } from '../types/Fighter';
 import Horizontal from './Horizontal';
 import BrickComponent from './BrickComponent';
 import { useForceUpdate } from '../hooks/useForceUpdate';
-import useEventListener from '../hooks/useEventEmitter';
+import useEventListener from '../hooks/useEventListener';
 import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { playSound } from '@/utils/SoundPlayer';
+import { useTargeting } from './TargetingContext';
+import { cn } from '@/lib/utils';
 
 export const FighterContext = createContext(
 	({ fighter }: { fighter: Fighter }) => {
@@ -32,6 +33,8 @@ function FighterComponent({
 		}
 	}, [fighter.isAlive()]);
 
+	const [ref, { isTargeting, isTargetable }] = useTargeting(fighter);
+
 	return (
 		<FighterContext.Provider fighter={fighter}>
 			<AnimatePresence>
@@ -41,6 +44,7 @@ function FighterComponent({
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
+						ref={ref}
 					>
 						<div
 							className='p-unit border-solid border-unit border-b-0 bg-black text-white font-barlow justify-center text-center'
@@ -59,7 +63,10 @@ function FighterComponent({
 							}}
 						>
 							<img
-								className='rendering-pixelated box-content bg-black border-unit border-solid border-r-0'
+								className={cn(
+									'rendering-pixelated box-content bg-black border-unit border-solid border-r-0',
+									isTargeting && !isTargetable && 'opacity-25'
+								)}
 								src={fighter.image}
 								style={{
 									width: fighter.width,

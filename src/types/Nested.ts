@@ -102,4 +102,8 @@ export class Children<T extends Nested<any>> extends Nested<NestedParent<T>> {
 
 		this.items.forEach(item => item.onRemoved(p));
 	}
+
+	isEmpty() {
+		return !(this.items.length);
+	}
 }

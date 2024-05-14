@@ -3,7 +3,13 @@ import { Tooltip, TooltipContent } from './ui/tooltip';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
 
-function AbilityComponent({ ability }: { ability: Ability<any> }) {
+function AbilityComponent({
+	ability,
+	onClick,
+}: {
+	ability: Ability<any>;
+	onClick?: () => void;
+}) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -16,6 +22,7 @@ function AbilityComponent({ ability }: { ability: Ability<any> }) {
 					onClick={() => {
 						if (ability.canClick()) {
 							ability.onClick();
+							onClick?.();
 						}
 					}}
 				/>

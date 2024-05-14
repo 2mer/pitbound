@@ -89,6 +89,12 @@ module.exports = {
 				'unit': '4px',
 				'unit-4': "calc(theme('spacing.unit')*4)",
 			},
+			ringOffsetWidth: {
+				'unit': "theme('size.unit')",
+			},
+			ringWidth: {
+				'unit': "theme('size.unit')",
+			},
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",

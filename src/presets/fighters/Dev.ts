@@ -2,6 +2,7 @@ import { Fighter } from "@/types/Fighter";
 import Image from '../../assets/icons/fighter/dev.png';
 import Color from "color";
 import { HandBrick } from "../bricks/HandBrick";
+import { InspectAbility } from "../abilities/InspectAbility";
 
 export class Dev extends Fighter {
 	name = 'Dev';
@@ -12,7 +13,13 @@ export class Dev extends Fighter {
 		super();
 
 		this.bricks.addAll(
-			new HandBrick().set({ health: 7, maxHealth: 7 }),
+			new HandBrick()
+				.set({ health: 7, maxHealth: 7 })
+				.transform(b => {
+					b.abilities.addAll(
+						new InspectAbility()
+					)
+				}),
 		)
 	}
 }

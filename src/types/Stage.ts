@@ -1,6 +1,6 @@
 import EventEmitter from "eventemitter3";
 import { Fighter } from "./Fighter";
-import { TargetingContext } from "./Targeting";
+import { Targeting } from "./Targeting";
 import { Children } from "./Nested";
 
 export const Side = {
@@ -14,6 +14,7 @@ export function oppositeSide(side: Side) {
 }
 
 type Events = {
+	update: () => void;
 	turnEnd: (ctx: { stage: Stage }) => void;
 	turnStart: (ctx: { stage: Stage }) => void;
 }
@@ -26,7 +27,7 @@ export class Stage {
 	friendly = new Children<Fighter>();
 	hostile = new Children<Fighter>();
 
-	targeting?: TargetingContext;
+	targeting?: Targeting<any>;
 
 	turn = 0;
 
@@ -69,6 +70,20 @@ export class Stage {
 
 	removeFighter(side: Side, fighter: Fighter) {
 		this[side].removeChild(fighter);
+	}
+
+	update() {
+		this.events.emit('update');
+	}
+
+	startTargeting<T>(t: Targeting<T>) {
+		this.targeting = t;
+		this.update();
+	}
+
+	stopTargeting() {
+		this.targeting = undefined;
+		this.update();
 	}
 
 	endTurn() {

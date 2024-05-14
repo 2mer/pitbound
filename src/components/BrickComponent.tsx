@@ -9,11 +9,10 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { Popover, PopoverContent } from './ui/popover';
-import { PopoverTrigger } from '@radix-ui/react-popover';
 import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import AbilitiesPopover from './AbilitiesPopover';
+import { useTargeting } from './TargetingContext';
 
 export const BrickContext = createContext(({ brick }: { brick: Brick }) =>
 	useConst(() => brick)
@@ -27,15 +26,25 @@ function BrickComponent({ brick }: { brick: Brick }) {
 	const isFriendly = stage.isFriendly(fighter);
 	const canClick = brick.canClick();
 
+	const [ref, { isTargetable, isTargeting }] = useTargeting(brick);
+
 	return (
 		<BrickContext.Provider brick={brick}>
 			<AnimatePresence>
 				{brick.isAlive() && (
 					<motion.div
-						className='flex flex-col'
+						className={cn(
+							'flex flex-col',
+							// isTargetable &&
+							// 'outline-offset-unit outline-unit'
+							// 'shadow-[0_0_0_theme(size.unit)_theme(color.slate.500)]'
+							// 'shadow-[0_0_0_theme(size.unit)_theme(colors.yellow.900)]'
+							isTargeting && !isTargetable && 'opacity-25'
+						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
+						ref={ref}
 					>
 						<div
 							className='flex flex-col items-center gap-unit'

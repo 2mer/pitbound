@@ -35,8 +35,6 @@ export class HitAbility<T> extends Ability<T> {
 
 		const match = this.closest(Fighter)!.bricks.getPattern(this.cost);
 
-		console.log({ match });
-
 		match.every(b => b.$usable.use())
 		fighter.update();
 	}
