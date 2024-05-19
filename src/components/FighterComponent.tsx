@@ -65,7 +65,12 @@ function FighterComponent({
 							<img
 								className={cn(
 									'rendering-pixelated box-content bg-black border-unit border-solid border-r-0',
-									isTargeting && !isTargetable && 'opacity-25'
+									isTargeting &&
+										!isTargetable &&
+										'opacity-25',
+									isTargeting &&
+										isTargetable &&
+										'cursor-pointer'
 								)}
 								src={fighter.image}
 								style={{

@@ -5,7 +5,7 @@ import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import { Button } from './ui/button';
 import { playSound } from '@/utils/SoundPlayer';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { TargetingContext } from './TargetingContext';
 import useEventListener from '@/hooks/useEventListener';
 import { useForceUpdate } from '@/hooks/useForceUpdate';

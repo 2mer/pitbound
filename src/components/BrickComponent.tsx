@@ -39,7 +39,8 @@ function BrickComponent({ brick }: { brick: Brick }) {
 							// 'outline-offset-unit outline-unit'
 							// 'shadow-[0_0_0_theme(size.unit)_theme(color.slate.500)]'
 							// 'shadow-[0_0_0_theme(size.unit)_theme(colors.yellow.900)]'
-							isTargeting && !isTargetable && 'opacity-25'
+							isTargeting && !isTargetable && 'opacity-25',
+							isTargeting && isTargetable && 'cursor-pointer'
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
