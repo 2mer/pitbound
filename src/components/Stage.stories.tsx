@@ -13,6 +13,9 @@ import {
 import { Pitling } from '@/presets/fighters/Pitling';
 import { Collector } from '@/presets/fighters/Collector';
 import { Dev } from '@/presets/fighters/Dev';
+import { HandBrick } from '@/presets/bricks/HandBrick';
+import { Ability } from '@/types/Ability';
+import { Brick } from '@/types/Brick';
 
 const meta: Meta<typeof StageComponent> = {
 	component: StageComponent,
@@ -103,12 +106,48 @@ export const Targeting: Story = {
 		const stage = useConst(() => {
 			const s = new Stage();
 
-			s.friendly.addAll(new Dev(), new Collector());
+			s.friendly.addAll(
+				new Dev().transform((dev) => {
+					class TargetBelow5 extends Ability<Brick> {
+						name = 'B5';
+						description = 'Taarget brick with less than 5 hp';
 
-			s.hostile.addAll(
-				new Pitling().set({ color: new Color(0xff0000) }),
-				new Pitling().set({ color: new Color(0xff0000) })
+						canClick() {
+							return true;
+						}
+
+						onClick(): void {
+							const stage = this.closest(Stage)!;
+
+							stage.startTargeting<any>({
+								ability: this,
+
+								canTarget(target) {
+									// return true;
+									return (
+										target instanceof Brick &&
+										target.hasHealth() &&
+										target.health < 5
+									);
+								},
+
+								onTarget(target) {
+									console.log({ target });
+
+									stage.stopTargeting();
+								},
+							});
+						}
+					}
+
+					dev.bricks
+						.getT(HandBrick)!
+						.abilities.addChild(new TargetBelow5());
+				}),
+				new Collector()
 			);
+
+			s.hostile.addAll(new Pitling(), new Pitling());
 
 			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
 

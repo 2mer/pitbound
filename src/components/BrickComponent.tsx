@@ -34,13 +34,11 @@ function BrickComponent({ brick }: { brick: Brick }) {
 				{brick.isAlive() && (
 					<motion.div
 						className={cn(
-							'flex flex-col',
-							// isTargetable &&
-							// 'outline-offset-unit outline-unit'
-							// 'shadow-[0_0_0_theme(size.unit)_theme(color.slate.500)]'
-							// 'shadow-[0_0_0_theme(size.unit)_theme(colors.yellow.900)]'
+							'flex flex-col relative group/brick',
 							isTargeting && !isTargetable && 'opacity-25',
-							isTargeting && isTargetable && 'cursor-pointer'
+							isTargeting &&
+								isTargetable &&
+								'cursor-pointer targetable'
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -54,6 +52,7 @@ function BrickComponent({ brick }: { brick: Brick }) {
 								height: brick.height,
 							}}
 						>
+							{/* brick icon */}
 							<Tooltip disableHoverableContent>
 								<TooltipTrigger asChild>
 									<div>
@@ -110,6 +109,7 @@ function BrickComponent({ brick }: { brick: Brick }) {
 								</TooltipContent>
 							</Tooltip>
 
+							{/* brick health bar */}
 							{brick.hasHealth() && (
 								<Tooltip disableHoverableContent>
 									<TooltipTrigger asChild>
@@ -149,6 +149,13 @@ function BrickComponent({ brick }: { brick: Brick }) {
 								</Tooltip>
 							)}
 						</div>
+
+						{/* brick targeting indication */}
+						<AnimatePresence>
+							{isTargeting && isTargetable && (
+								<motion.div className='absolute target-indication [--targeting-padding:calc(theme(size.unit)*-2)]' />
+							)}
+						</AnimatePresence>
 					</motion.div>
 				)}
 			</AnimatePresence>

@@ -84,6 +84,10 @@ module.exports = {
 					from: { height: "var(--radix-accordion-content-height)" },
 					to: { height: "0" },
 				},
+				"targeting": {
+					from: { borderColor: 'theme(colors.yellow.400)' },
+					to: { borderColor: 'theme(colors.yellow.900)' },
+				}
 			},
 			spacing: {
 				'unit': '4px',
@@ -98,6 +102,7 @@ module.exports = {
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
+				"targeting": "targeting 1.2s ease-in-out alternate infinite"
 			},
 		},
 	},

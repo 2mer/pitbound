@@ -68,7 +68,7 @@ function StageComponent({ stage }: { stage: Stage }) {
 					<div className='grid grid-cols-[1fr_auto_1fr] justify-center gap-[calc(theme(size.unit)*4)] p-[calc(theme(size.unit)*4)] flex-1 w-full items-center relative'>
 						<div
 							className={cn(
-								'absolute inset-0 z-[-1] transition-all duration-200',
+								'absolute inset-0 z-[-1] transition-all duration-500',
 								isTargeting &&
 									// 'before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-hue-rotate-90'
 									'hue-rotate-90 brightness-[0.2]'

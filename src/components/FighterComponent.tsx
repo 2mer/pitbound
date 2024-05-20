@@ -40,7 +40,10 @@ function FighterComponent({
 			<AnimatePresence>
 				{fighter.isAlive() && (
 					<motion.div
-						className='flex flex-col group/fighter'
+						className={cn(
+							'flex flex-col group/fighter',
+							flipped && '[&_.target-indication]:scale-x-[-1]'
+						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
@@ -62,26 +65,38 @@ function FighterComponent({
 									: undefined,
 							}}
 						>
-							<img
-								className={cn(
-									'rendering-pixelated box-content bg-black border-unit border-solid border-r-0',
-									isTargeting &&
-										!isTargetable &&
-										'opacity-25',
-									isTargeting &&
-										isTargetable &&
-										'cursor-pointer'
-								)}
-								src={fighter.image}
+							<div
+								className='bg-black border-unit border-solid border-r-0 box-content relative'
 								style={{
-									width: fighter.width,
-									height: fighter.height,
 									transform: flipped
 										? 'scaleX(-1)'
 										: undefined,
 									borderColor: fighter.color.hex(),
 								}}
-							/>
+							>
+								<AnimatePresence>
+									{isTargeting && isTargetable && (
+										<motion.div className='absolute inset-[-4px] border-unit border-solid border-yellow-400 animate-pulse' />
+									)}
+								</AnimatePresence>
+								<img
+									className={cn(
+										'rendering-pixelated transition-all duration-200',
+										isTargeting &&
+											!isTargetable &&
+											'opacity-25',
+										isTargeting &&
+											isTargetable &&
+											'cursor-pointer'
+									)}
+									src={fighter.image}
+									style={{
+										width: fighter.width,
+										height: fighter.height,
+									}}
+								/>
+							</div>
+
 							<Horizontal
 								className='bg-black border-solid border-unit p-unit gap-unit'
 								style={{
