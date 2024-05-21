@@ -35,10 +35,9 @@ function BrickComponent({ brick }: { brick: Brick }) {
 					<motion.div
 						className={cn(
 							'flex flex-col relative group/brick',
-							isTargeting && !isTargetable && 'opacity-25',
 							isTargeting &&
 								isTargetable &&
-								'cursor-pointer targetable'
+								'cursor-pointer targetable-brick'
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -46,7 +45,10 @@ function BrickComponent({ brick }: { brick: Brick }) {
 						ref={ref}
 					>
 						<div
-							className='flex flex-col items-center gap-unit'
+							className={cn(
+								'flex flex-col items-center gap-unit transition-all duration-200',
+								isTargeting && !isTargetable && 'opacity-25'
+							)}
 							style={{
 								width: brick.width,
 								height: brick.height,
@@ -153,7 +155,12 @@ function BrickComponent({ brick }: { brick: Brick }) {
 						{/* brick targeting indication */}
 						<AnimatePresence>
 							{isTargeting && isTargetable && (
-								<motion.div className='absolute target-indication [--targeting-padding:calc(theme(size.unit)*-2)]' />
+								<motion.div
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className='absolute target-brick-indication [--targeting-padding:calc(theme(size.unit)*-2)]'
+								/>
 							)}
 						</AnimatePresence>
 					</motion.div>

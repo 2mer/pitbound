@@ -42,7 +42,8 @@ function FighterComponent({
 					<motion.div
 						className={cn(
 							'flex flex-col group/fighter',
-							flipped && '[&_.target-indication]:scale-x-[-1]'
+							flipped &&
+								'[&_.target-brick-indication]:scale-x-[-1]'
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -76,7 +77,12 @@ function FighterComponent({
 							>
 								<AnimatePresence>
 									{isTargeting && isTargetable && (
-										<motion.div className='absolute inset-[-4px] border-unit border-solid border-yellow-400 animate-pulse' />
+										<motion.div
+											initial={{ opacity: 0 }}
+											animate={{ opacity: 1 }}
+											exit={{ opacity: 0 }}
+											className='absolute target-fighter-indication [--targeting-padding:calc(theme(size.unit)*-1)]'
+										/>
 									)}
 								</AnimatePresence>
 								<img

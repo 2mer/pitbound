@@ -19,8 +19,7 @@ export class InspectAbility extends Ability<Brick> {
 			ability: this,
 
 			canTarget(target) {
-				// return true;
-				return target instanceof Brick;
+				return true;
 			},
 
 			onTarget(target) {

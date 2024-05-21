@@ -86,14 +86,22 @@
 	} */
 }
 
-.targetable .target-indication {
-	@apply animate-targeting z-10 border-solid border-yellow-500 border-y-unit inset-[var(--targeting-padding)];
+.targeting {
+	@apply animate-targeting z-10 border-solid border-yellow-500 pointer-events-none inset-[var(--targeting-padding)];
 }
 
-:is(.targetable:first-child, :not(.targetable)+.targetable) .target-indication {
+.targetable-brick .target-brick-indication {
+	@apply targeting border-y-unit;
+}
+
+:is(.targetable-brick:first-child, :not(.targetable-brick)+.targetable-brick) .target-brick-indication {
 	@apply border-l-unit
 }
 
-:is(.targetable:last-child, .targetable:not(:has(+.targetable))) .target-indication {
+:is(.targetable-brick:last-child, .targetable-brick:not(:has(+.targetable-brick))) .target-brick-indication {
 	@apply border-r-unit
+}
+
+.target-fighter-indication {
+	@apply targeting border-unit;
 }
