@@ -13,6 +13,7 @@ import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import AbilitiesPopover from './AbilitiesPopover';
 import { useTargeting } from './TargetingContext';
+import UsedIcon from '@/assets/icons/ability/used.png';
 
 export const BrickContext = createContext(({ brick }: { brick: Brick }) =>
 	useConst(() => brick)
@@ -42,7 +43,7 @@ function BrickComponent({ brick }: { brick: Brick }) {
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						ref={ref}
+						ref={ref as any}
 					>
 						<div
 							className={cn(
@@ -72,6 +73,12 @@ function BrickComponent({ brick }: { brick: Brick }) {
 												)}
 											/>
 										</AbilitiesPopover>
+										{!brick.$usable!.canUse() && (
+											<img
+												src={UsedIcon}
+												className='absolute top-0 right-0 w-[32px] h-[32px] rendering-pixelated pointer-events-none'
+											/>
+										)}
 									</div>
 								</TooltipTrigger>
 

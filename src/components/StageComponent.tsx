@@ -37,7 +37,7 @@ function StageComponent({ stage }: { stage: Stage }) {
 		return () => {
 			document.removeEventListener('keypress', handleSpace);
 		};
-	}, []);
+	}, [stage]);
 
 	const update = useForceUpdate();
 	useEventListener(stage.events, 'update', update);
@@ -59,7 +59,7 @@ function StageComponent({ stage }: { stage: Stage }) {
 		return () => {
 			document.body.removeEventListener('keydown', handleEsc);
 		};
-	}, [isTargeting]);
+	}, [stage, isTargeting]);
 
 	return (
 		<StageContext.Provider stage={stage}>

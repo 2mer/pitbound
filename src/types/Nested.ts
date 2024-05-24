@@ -1,16 +1,36 @@
+import { serializable, serialize } from "@/system/Serialization";
+
+const RelatedSymbol = Symbol('related');
+
+type KeysWithValuesOfType<T, R> = {
+	[K in keyof T]: T[K] extends R ? K : never
+}[keyof T];
+
+export function related<T extends Nested<any>>(target: T, key: KeysWithValuesOfType<T, Nested<any>>) {
+	// @ts-ignore
+	target[RelatedSymbol] ??= [];
+	// @ts-ignore
+	target[RelatedSymbol] = [...target[RelatedSymbol], key];
+}
+
 export class Nested<TParent> {
 	parent?: TParent;
 
 	isAdded = false;
 
-	related?: Nested<this>[]
+	get related(): Nested<this>[] {
+		// @ts-ignore
+		return (this[RelatedSymbol] ?? []).map(key => this[key]);
+	}
 
 	onAdded(p: TParent) {
 		this.parent = p;
 		this.isAdded = true;
 
 		if (this.related) {
-			this.related.forEach(r => r.onAdded(this));
+			this.related.forEach(r => {
+				r.onAdded(this);
+			});
 		}
 	}
 
@@ -54,7 +74,9 @@ export class Nested<TParent> {
 
 type NestedParent<T extends Nested<any>> = T extends Nested<infer R> ? R : never;
 
-export class Children<T extends Nested<any>> extends Nested<NestedParent<T>> {
+
+export @serializable('children') class Children<T extends Nested<any>> extends Nested<NestedParent<T>> {
+	@serialize
 	items: T[] = [];
 
 	addAll(...items: T[]) {

@@ -2,6 +2,8 @@ import EventEmitter from "eventemitter3";
 import { Fighter } from "./Fighter";
 import { Targeting } from "./Targeting";
 import { Children } from "./Nested";
+import { postDeserialize, serializable, serialize } from "@/system/Serialization";
+import { v4 } from "uuid";
 
 export const Side = {
 	FRIENDLY: 'friendly',
@@ -19,19 +21,30 @@ type Events = {
 	turnStart: (ctx: { stage: Stage }) => void;
 }
 
-export class Stage {
+
+export @serializable('stage') class Stage {
+
+	test = 'stage';
 	events = new EventEmitter<Events>();
 
-	background: string = 'linear-gradient(to bottom, gray, darkgray)';
+	@serialize id = v4();
 
-	friendly = new Children<Fighter>();
-	hostile = new Children<Fighter>();
+	@serialize background: string = 'linear-gradient(to bottom, gray, darkgray)';
+
+	@serialize friendly = new Children<Fighter>();
+
+	@serialize hostile = new Children<Fighter>();
 
 	targeting?: Targeting<any>;
 
-	turn = 0;
+	@serialize turn = 0;
 
 	constructor() {
+		this.init();
+	}
+
+	@postDeserialize
+	init() {
 		this.friendly.onAdded(this);
 		this.hostile.onAdded(this);
 	}

@@ -1,8 +1,9 @@
 import { Brick } from "@/types/Brick";
 import Icon from '@/assets/icons/brick/hand.png';
 import { HitAbility } from "../abilities/HitAbility";
+import { serializable } from "@/system/Serialization";
 
-export class HandBrick extends Brick {
+export @serializable('brick.hand') class HandBrick extends Brick {
 	name = 'Hand';
 	image = Icon;
 

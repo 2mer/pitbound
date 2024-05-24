@@ -4,8 +4,9 @@ import Color from "color";
 import { LegBrick } from "../bricks/LegBrick";
 import { HeartBrick } from "../bricks/HeartBrick";
 import { ClawBrick } from "../bricks/ClawBrick";
+import { serializable } from "@/system/Serialization";
 
-export class Pitling extends Fighter {
+export @serializable('fighter.pitling') class Pitling extends Fighter {
 	name = 'Pitling';
 	image = Image;
 	color = new Color(0xc18061);

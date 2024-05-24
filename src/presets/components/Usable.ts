@@ -1,9 +1,12 @@
+import { serializable, serialize } from "@/system/Serialization";
 import { Component } from "@/types/Component";
 import { Fighter } from "@/types/Fighter";
 import { Stage } from "@/types/Stage";
 
-export class Usable<T> extends Component<T> {
+export @serializable('component.usable') class Usable<T> extends Component<T> {
+	@serialize
 	uses = 1;
+	@serialize
 	baseUses = 1;
 
 	public use() {

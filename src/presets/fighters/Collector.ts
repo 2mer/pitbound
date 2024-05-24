@@ -4,8 +4,9 @@ import Color from "color";
 import { LegBrick } from "../bricks/LegBrick";
 import { HeartBrick } from "../bricks/HeartBrick";
 import { HandBrick } from "../bricks/HandBrick";
+import { serializable } from "@/system/Serialization";
 
-export class Collector extends Fighter {
+export @serializable('fighter.collector') class Collector extends Fighter {
 	name = 'Collector';
 	image = Image;
 	color = new Color(0x23674e);

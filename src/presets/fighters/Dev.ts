@@ -3,11 +3,15 @@ import Image from '../../assets/icons/fighter/dev.png';
 import Color from "color";
 import { HandBrick } from "../bricks/HandBrick";
 import { InspectAbility } from "../abilities/InspectAbility";
+import { serializable, serialize } from "@/system/Serialization";
 
-export class Dev extends Fighter {
+export @serializable('fighter.dev') class Dev extends Fighter {
 	name = 'Dev';
 	image = Image;
 	color = new Color(0xa6fcdb);
+
+	@serialize
+	test = 5;
 
 	constructor() {
 		super();

@@ -6,18 +6,20 @@ import { Effect } from "./Effect";
 import { v4 } from "uuid";
 import EventEmitter from "eventemitter3";
 import { Stage } from "./Stage";
-import { Children, Nested } from "./Nested";
+import { Nested, related } from "./Nested";
 import { ComponentSystem } from "./Component";
+import { serializable, serialize } from "@/system/Serialization";
 
 export type FighterEvents = {
 	update: () => void;
 }
 
-export class Fighter extends Nested<Stage> {
-	id = v4();
-	effects = new ComponentSystem<Effect<Fighter>>();
-	inventory = new ComponentSystem<Item<Fighter>>();
-	bricks = new ComponentSystem<Brick>();
+export @serializable('fighter') class Fighter extends Nested<Stage> {
+	@serialize id = v4();
+	@serialize @related effects = new ComponentSystem<Effect<Fighter>>();
+	@serialize @related inventory = new ComponentSystem<Item<Fighter>>();
+	@serialize @related bricks = new ComponentSystem<Brick>();
+
 	events = new EventEmitter<FighterEvents>();
 
 	height: number = 64;
@@ -25,17 +27,11 @@ export class Fighter extends Nested<Stage> {
 
 	image: string = DummyImage;
 
-	name = 'fighter';
+	@serialize name = 'fighter';
 
 	color = new Color(0xFAFAFA);
 
-	related = [
-		this.effects,
-		this.bricks,
-		this.inventory,
-	] as Nested<this>[]
-
-	private _isDead = false;
+	@serialize private _isDead = false;
 
 	get stage() {
 		return this.parent!;

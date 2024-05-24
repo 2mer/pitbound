@@ -2,8 +2,9 @@ import { Ability } from "@/types/Ability";
 import { Brick } from "@/types/Brick";
 import Icon from '@/assets/icons/ability/insepct.png';
 import { Stage } from "@/types/Stage";
+import { serializable } from "@/system/Serialization";
 
-export class InspectAbility extends Ability<Brick> {
+export @serializable('ability.inspect') class InspectAbility extends Ability<Brick> {
 	image = Icon;
 	name = 'Inspect';
 	description = 'Click on an element to log it out to the console';

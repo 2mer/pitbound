@@ -1,8 +1,9 @@
+import { serializable } from "@/system/Serialization";
 import { Brick, Ctx } from "@/types/Brick";
 import { Keyword } from "@/types/Keyword";
 import Color from "color";
 
-export class EssentialKeyword extends Keyword<Brick> {
+export @serializable('keyword.essential') class EssentialKeyword extends Keyword<Brick> {
 	name = 'Essential';
 	color = new Color(0xFF00FF);
 

@@ -7,10 +7,11 @@ import UnknownImage from '../assets/icons/brick/unknown.png'
 import { Keyword } from './Keyword';
 import EventEmitter from 'eventemitter3';
 import { Component, ComponentSystem } from './Component';
-import { Nested } from './Nested';
+import { Nested, related } from './Nested';
 import { Ability } from './Ability';
 import { Usable } from '@/presets/components/Usable';
 import { playSound } from '@/utils/SoundPlayer';
+import { serializable, serialize } from '@/system/Serialization';
 
 export type ActionCtx = {
 	stage: Stage;
@@ -27,28 +28,23 @@ export type Events = {
 
 export type Ctx<T extends keyof Events> = Events[T] extends (e: infer R) => any ? R : never;
 
-export class Brick extends Nested<Fighter> {
-	effects = new ComponentSystem<Effect<Brick>>();
-	keywords = new ComponentSystem<Keyword<Brick>>();
-	components = new ComponentSystem<Component<Brick>>();
-	abilities = new ComponentSystem<Ability<Brick>>();
+export @serializable('brick') class Brick extends Nested<Fighter> {
+	@serialize @related effects = new ComponentSystem<Effect<Brick>>();
+	@serialize @related keywords = new ComponentSystem<Keyword<Brick>>();
+	@serialize @related components = new ComponentSystem<Component<Brick>>().transform(c => c.addAll(new Usable<Brick>()));
+	@serialize @related abilities = new ComponentSystem<Ability<Brick>>();
 	events = new EventEmitter<Events>();
 
-	$usable = this.components.addChild(new Usable<Brick>())
+	get $usable() {
+		return this.components.getT(Usable<Brick>);
+	}
 
-	related = [
-		this.effects,
-		this.keywords,
-		this.components,
-		this.abilities,
-	] as Nested<this>[]
-
-	id = v4();
-	health = 0;
-	maxHealth = 0;
+	@serialize id = v4();
+	@serialize health = 0;
+	@serialize maxHealth = 0;
 	shields = 0;
 	invincible = false;
-	level = 1;
+	@serialize level = 1;
 
 	height = 150;
 	width = 32;
@@ -57,6 +53,7 @@ export class Brick extends Nested<Fighter> {
 
 	image = UnknownImage;
 
+	@serialize
 	name = 'Brick';
 	description = '';
 
@@ -124,6 +121,8 @@ export class Brick extends Nested<Fighter> {
 	}
 
 	public canClick(): boolean {
+		if (!this.isAdded) return false;
+
 		const allAbilities = this.abilities.values();
 		if (!allAbilities.length) return false;
 
@@ -132,6 +131,14 @@ export class Brick extends Nested<Fighter> {
 
 	getDescription() {
 		return this.description;
+	}
+
+	static canUseBrick(brick: Brick) {
+		return brick.$usable!.canUse();
+	}
+
+	static useBrick(brick: Brick) {
+		return brick.$usable!.use();
 	}
 
 }

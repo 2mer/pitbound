@@ -4,20 +4,31 @@ import { Attacker } from "../components/Attacker";
 import Icon from '@/assets/icons/ability/hit.png';
 import { HandBrick } from "../bricks/HandBrick";
 import { Tuple } from "@/types/Tuple";
+import { serializable } from "@/system/Serialization";
+import { Brick } from "@/types/Brick";
 
-export class HitAbility<T> extends Ability<T> {
+export @serializable('ability.hit') class HitAbility<T> extends Ability<T> {
 	image = Icon;
 
 	name = 'Hit';
 
-	$attacker = this.components.addChild(new Attacker());
+	constructor() {
+		super();
+		this.components.addAll(
+			new Attacker()
+		)
+	}
+
+	get $attacker() {
+		return this.components.getT(Attacker);
+	}
 
 	cost = Tuple(HandBrick);
 
 	canClick(): boolean {
-		const match = this.closest(Fighter)!.bricks.getPattern(this.cost);
 
-		return match.every(b => Boolean(b) && b.$usable.canUse())
+		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
+		return match.ok;
 	}
 
 	onClick(): void {
@@ -30,16 +41,16 @@ export class HitAbility<T> extends Ability<T> {
 			const firstBrick = e.getLivingBricks().at(-1);
 			if (!firstBrick) return;
 
-			firstBrick.damage({ attacker: fighter, amount: this.$attacker.attack });
+			firstBrick.damage({ attacker: fighter, amount: this.$attacker!.attack });
 		})
 
-		const match = this.closest(Fighter)!.bricks.getPattern(this.cost);
+		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
+		match.hits.forEach(Brick.useBrick)
 
-		match.every(b => b.$usable.use())
 		fighter.update();
 	}
 
 	getDescription(): string {
-		return `Damage targeted brick for ${this.$attacker.attack}`
+		return `Damage targeted brick for ${this.$attacker!.attack}`
 	}
 }

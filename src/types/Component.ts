@@ -1,9 +1,10 @@
 import { ClassHash } from "@/utils/ClassHash";
 import { Children, Nested } from "./Nested";
+import { postDeserialize, serializable } from "@/system/Serialization";
 
-export class Component<TParent> extends Nested<TParent> { }
+export @serializable('component') class Component<TParent> extends Nested<TParent> { }
 
-export class ComponentSystem<T extends Component<any>> extends Children<T> {
+export @serializable('components') class ComponentSystem<T extends Component<any>> extends Children<T> {
 	typeHash = new ClassHash<T>();
 
 	addChild<C extends T>(item: C): C {
@@ -29,20 +30,32 @@ export class ComponentSystem<T extends Component<any>> extends Children<T> {
 		return this.typeHash.getAll(clzz) as any;
 	}
 
-	getPattern<C extends typeof Component<any>[]>(pattern: C): ClassesToInstances<C> {
+	getPattern<C extends typeof Component<any>[]>(pattern: C, filter: ((v: InstanceType<C[number]>) => boolean) = () => true) {
 		const clzzToIndex = new Map<Object, number>();
 
 		const res: any[] = [];
 
 		pattern.forEach(clzz => {
-			const index = clzzToIndex.get(clzz) ?? 0;
+			const startIndex = clzzToIndex.get(clzz) ?? 0;
 
-			res.push(this.getAllT(clzz)?.[index]);
+			const vals = this.getAllT(clzz).slice(startIndex);
+			const vIndex = vals.findIndex(v => filter(v as unknown as InstanceType<C[number]>));
 
-			clzzToIndex.set(clzz, index + 1);
+			if (vIndex > -1) {
+				res.push(vals[vIndex]);
+			}
+
+			clzzToIndex.set(clzz, vIndex + 1);
 		})
 
-		return res as any;
+		return { ok: (res.length === pattern.length) && res.every(Boolean), hits: res as ClassesToInstances<C> };
+	}
+
+	@postDeserialize
+	onDeserealize() {
+		this.values().forEach(item => {
+			this.typeHash.add(item);
+		})
 	}
 
 	clear(): void {

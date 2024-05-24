@@ -16,6 +16,7 @@ specifiers:
   '@storybook/test': ^8.0.10
   '@types/color': ^3.0.6
   '@types/howler': ^2.2.11
+  '@types/lodash': ^4.17.4
   '@types/node': ^20.12.11
   '@types/react': ^18.2.66
   '@types/react-dom': ^18.2.22
@@ -34,6 +35,7 @@ specifiers:
   eventemitter3: ^5.0.1
   framer-motion: ^11.1.9
   howler: ^2.2.4
+  lodash: ^4.17.21
   lucide-react: ^0.378.0
   postcss: ^8.4.38
   react: ^18.2.0
@@ -58,6 +60,7 @@ dependencies:
   eventemitter3: 5.0.1
   framer-motion: 11.1.9_nnrd3gsncyragczmpvfhocinkq
   howler: 2.2.4
+  lodash: 4.17.21
   lucide-react: 0.378.0_react@18.3.1
   react: 18.3.1
   react-dom: 18.3.1_react@18.3.1
@@ -78,6 +81,7 @@ devDependencies:
   '@storybook/test': 8.0.10
   '@types/color': 3.0.6
   '@types/howler': 2.2.11
+  '@types/lodash': 4.17.4
   '@types/node': 20.12.11
   '@types/react': 18.3.1
   '@types/react-dom': 18.3.0
@@ -2611,7 +2615,7 @@ packages:
       '@storybook/preview-api': 8.0.10
       '@storybook/theming': 8.0.10_nnrd3gsncyragczmpvfhocinkq
       '@storybook/types': 8.0.10
-      '@types/lodash': 4.17.1
+      '@types/lodash': 4.17.4
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -3389,8 +3393,8 @@ packages:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
     dev: true
 
-  /@types/lodash/4.17.1:
-    resolution: {integrity: sha512-X+2qazGS3jxLAIz5JDXDzglAF3KpijdhFxlf/V1+hEsOUc+HnWi81L/uv/EvGuV90WY+7mPGFCUDGfQC3Gj95Q==}
+  /@types/lodash/4.17.4:
+    resolution: {integrity: sha512-wYCP26ZLxaT3R39kiN2+HcJ4kTd3U1waI/cY7ivWYqFP6pW3ZNpvi6Wd6PHZx7T/t8z0vlkXMg3QYLa7DZ/IJQ==}
     dev: true
 
   /@types/mdx/2.0.13:
@@ -6068,7 +6072,6 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: true
 
   /log-symbols/4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
