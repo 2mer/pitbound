@@ -81,11 +81,11 @@ function StageComponent({ stage }: { stage: Stage }) {
 							}}
 						/>
 
-						<div className='flex flex-col gap-[calc(theme(size.unit)*4)] items-end'>
+						<motion.div className='flex flex-col gap-[calc(theme(size.unit)*4)] items-end'>
 							{stage.friendly.values().map((f) => (
 								<FighterComponent key={f.id} fighter={f} />
 							))}
-						</div>
+						</motion.div>
 
 						<div className='flex self-stretch border-l-unit border-black border-opacity-20' />
 

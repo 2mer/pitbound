@@ -40,6 +40,7 @@ function FighterComponent({
 			<AnimatePresence>
 				{fighter.isAlive() && (
 					<motion.div
+						layout
 						className={cn(
 							'flex flex-col group/fighter',
 							flipped &&

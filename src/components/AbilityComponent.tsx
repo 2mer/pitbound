@@ -14,7 +14,7 @@ function AbilityComponent({
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<img
-					src={ability.image}
+					src={ability.getImage()}
 					className={cn(
 						'h-[32px] w-[32px] rendering-pixelated transition-all duration-200',
 						ability.canClick() ? 'cursor-pointer' : 'opacity-25'

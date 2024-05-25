@@ -26,4 +26,8 @@ export @serializable('ability') class Ability<T> extends Nested<T> {
 	getDescription() {
 		return this.description;
 	}
+
+	getImage() {
+		return this.image;
+	}
 }
