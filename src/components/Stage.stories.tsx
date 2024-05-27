@@ -16,6 +16,7 @@ import { Dev } from '@/presets/fighters/Dev';
 import { HandBrick } from '@/presets/bricks/HandBrick';
 import { Ability } from '@/types/Ability';
 import { Brick } from '@/types/Brick';
+import { Skull } from '@/presets/fighters/Skull';
 
 const meta: Meta<typeof StageComponent> = {
 	component: StageComponent,
@@ -144,7 +145,9 @@ export const Targeting: Story = {
 						.getT(HandBrick)!
 						.abilities.addChild(new TargetBelow5());
 				}),
-				new Collector()
+				new Collector(),
+				new Pitling(),
+				new Skull()
 			);
 
 			s.hostile.addAll(new Pitling(), new Pitling());

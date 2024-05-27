@@ -1,4 +1,5 @@
 import { Ability } from "./Ability";
+import { Fighter } from "./Fighter";
 
 export interface Targeting<T> {
 	canTarget(target: T): boolean;
@@ -8,6 +9,7 @@ export interface Targeting<T> {
 	onCancel?: () => void;
 
 	ability?: Ability<any>;
+	caster?: Fighter;
 }
 
 export function Targeting<T>(v: Targeting<T>) {

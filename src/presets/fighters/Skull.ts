@@ -9,11 +9,15 @@ export class Skull extends Fighter {
 	image = SkullImage;
 	color = new Color(0xFFFFFF);
 
-	bricks = [
-		new BoneBrick().set({ health: 5, maxHealth: 5 }),
-		new BoneBrick().set({ health: 5, maxHealth: 5 }),
-		new HandBrick().set({ health: 5, maxHealth: 5, color: new Color(0xFFFFFF) }),
-		new BoneBrick().set({ health: 5, maxHealth: 5 }),
-		new BoneBrick().set({ health: 5, maxHealth: 5 }),
-	]
+	constructor() {
+		super();
+
+		this.bricks.addAll(
+			new BoneBrick().set({ health: 5, maxHealth: 5 }),
+			new BoneBrick().set({ health: 5, maxHealth: 5 }),
+			new HandBrick().set({ health: 5, maxHealth: 5, color: new Color(0xFFFFFF) }),
+			new BoneBrick().set({ health: 5, maxHealth: 5 }),
+			new BoneBrick().set({ health: 5, maxHealth: 5 }),
+		)
+	}
 }

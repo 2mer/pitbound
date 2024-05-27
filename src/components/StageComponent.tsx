@@ -121,6 +121,18 @@ function StageComponent({ stage }: { stage: Stage }) {
 										playSound('click');
 									}}
 								>
+									{stage?.targeting?.caster && (
+										<img
+											src={stage.targeting.caster.image}
+											className='rendering-pixelated transition-all duration-200'
+											style={{
+												width: stage.targeting.caster
+													.width,
+												height: stage.targeting.caster
+													.height,
+											}}
+										/>
+									)}
 									{stage?.targeting?.ability && (
 										<AbilityComponent
 											ability={stage?.targeting?.ability}

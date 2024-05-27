@@ -4,6 +4,9 @@ import Color from "color";
 import { HandBrick } from "../bricks/HandBrick";
 import { InspectAbility } from "../abilities/InspectAbility";
 import { serializable, serialize } from "@/system/Serialization";
+import { LogStageAbility } from "../abilities/LogStageAbility";
+import { LegBrick } from "../bricks/LegBrick";
+import { MoveAbility } from "../abilities/MoveAbility";
 
 export @serializable('fighter.dev') class Dev extends Fighter {
 	name = 'Dev';
@@ -17,11 +20,16 @@ export @serializable('fighter.dev') class Dev extends Fighter {
 		super();
 
 		this.bricks.addAll(
+			new LegBrick().set({ health: 7, maxHealth: 7 }).transform(b => {
+				b.$usable!.set({ uses: Infinity });
+				b.abilities.getT(MoveAbility)!.set({ maxDistance: 5 })
+			}),
 			new HandBrick()
 				.set({ health: 7, maxHealth: 7 })
 				.transform(b => {
 					b.abilities.addAll(
-						new InspectAbility()
+						new InspectAbility(),
+						new LogStageAbility(),
 					)
 				}),
 		)

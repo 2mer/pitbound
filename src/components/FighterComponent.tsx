@@ -33,7 +33,8 @@ function FighterComponent({
 		}
 	}, [fighter.isAlive()]);
 
-	const [ref, { isTargeting, isTargetable }] = useTargeting(fighter);
+	const [ref, { isTargeting, isTargetable, isCaster }] =
+		useTargeting(fighter);
 
 	return (
 		<FighterContext.Provider fighter={fighter}>
@@ -44,7 +45,16 @@ function FighterComponent({
 						className={cn(
 							'flex flex-col group/fighter',
 							flipped &&
-								'[&_.target-brick-indication]:scale-x-[-1]'
+								'[&_.target-brick-indication]:scale-x-[-1]',
+
+							isTargeting &&
+								isTargetable &&
+								'targeting-big cursor-pointer',
+
+							isTargeting &&
+								!isTargetable &&
+								!isCaster &&
+								'filter saturate-0 brightness-[25%]'
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -76,16 +86,6 @@ function FighterComponent({
 									borderColor: fighter.color.hex(),
 								}}
 							>
-								<AnimatePresence>
-									{isTargeting && isTargetable && (
-										<motion.div
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											exit={{ opacity: 0 }}
-											className='absolute target-fighter-indication [--targeting-padding:calc(theme(size.unit)*-1)]'
-										/>
-									)}
-								</AnimatePresence>
 								<img
 									className={cn(
 										'rendering-pixelated transition-all duration-200',

@@ -110,4 +110,27 @@ export @serializable('stage') class Stage {
 	startTurn() {
 		this.events.emit('turnStart', { stage: this })
 	}
+
+	getAbove(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
+		const allies = this.getAllies(fighter).values();
+		const fIndex = allies.indexOf(fighter);
+		const minIndex = 0;
+
+		return allies.slice(Math.max(minIndex, fIndex - maxDistance), Math.max(minIndex, fIndex - minDistance + 1)).filter(f => f !== fighter);
+	}
+
+	getBelow(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
+		const allies = this.getAllies(fighter).values();
+		const fIndex = allies.indexOf(fighter);
+		const maxIndex = allies.length;
+
+		return allies.slice(Math.min(fIndex + minDistance, maxIndex), Math.min(fIndex + maxDistance + 1, maxIndex)).filter(f => f !== fighter);
+	}
+
+	getNeighboors(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
+		return [
+			...this.getAbove(fighter, minDistance, maxDistance),
+			...this.getBelow(fighter, minDistance, maxDistance),
+		]
+	}
 }

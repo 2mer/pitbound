@@ -46,7 +46,7 @@ export @serializable('brick') class Brick extends Nested<Fighter> {
 	invincible = false;
 	@serialize level = 1;
 
-	height = 150;
+	height = 32 * 4;
 	width = 32;
 
 	color = new Color(0xFFFFFF);

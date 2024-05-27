@@ -10,8 +10,7 @@ export @serializable('brick.leg') class LegBrick extends Brick {
 	constructor() {
 		super();
 		this.abilities.addAll(
-			new MoveAbility().set({ direction: 'up' }),
-			new MoveAbility().set({ direction: 'down' }),
+			new MoveAbility(),
 		)
 	}
 }

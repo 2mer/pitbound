@@ -87,7 +87,16 @@ module.exports = {
 				"targeting": {
 					from: { borderColor: 'theme(colors.yellow.400)' },
 					to: { borderColor: 'theme(colors.yellow.900)' },
-				}
+				},
+				"targeting-big": {
+					from: {
+						borderColor: 'theme(colors.yellow.400)',
+						filter: `drop-shadow(calc(theme('size.unit')*-1) 0px 0px theme('colors.yellow.400')) drop-shadow(theme('size.unit') 0px 0px theme('colors.yellow.400')) drop-shadow(0px calc(theme('size.unit')*-1) 0px theme('colors.yellow.400')) drop-shadow(0px theme('size.unit') 0px theme('colors.yellow.400'))`
+					},
+					to: {
+						filter: `drop-shadow(calc(theme('size.unit')*-1) 0px 0px theme('colors.yellow.900')) drop-shadow(theme('size.unit') 0px 0px theme('colors.yellow.900')) drop-shadow(0px calc(theme('size.unit')*-1) 0px theme('colors.yellow.900')) drop-shadow(0px theme('size.unit') 0px theme('colors.yellow.900'))`
+					},
+				},
 			},
 			spacing: {
 				'unit': '4px',
@@ -102,7 +111,8 @@ module.exports = {
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
-				"targeting": "targeting 1.2s ease-in-out alternate infinite"
+				"targeting": "targeting 1.2s ease-in-out alternate infinite",
+				"targeting-big": "targeting-big 1.2s ease-in-out alternate infinite",
 			},
 		},
 	},

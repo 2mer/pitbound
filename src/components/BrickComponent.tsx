@@ -48,7 +48,9 @@ function BrickComponent({ brick }: { brick: Brick }) {
 						<div
 							className={cn(
 								'flex flex-col items-center gap-unit transition-all duration-200',
-								isTargeting && !isTargetable && 'opacity-25'
+								isTargeting &&
+									!isTargetable &&
+									'opacity-25 pointer-events-none'
 							)}
 							style={{
 								width: brick.width,

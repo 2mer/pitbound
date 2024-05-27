@@ -1,3 +1,4 @@
+import { Fighter } from '@/types/Fighter';
 import { Targeting } from '@/types/Targeting';
 import { createContext } from '@sgty/kontext-react';
 import { useEffect, useMemo, useRef } from 'react';
@@ -15,9 +16,20 @@ export function useTargeting<T>(value: T) {
 
 	const isTargetable = useMemo(() => {
 		if (!targeting) return false;
-		if (!value) return;
+		if (!value) return false;
 
 		return targeting.canTarget(value);
+	}, [targeting, value]);
+
+	const isCaster = useMemo(() => {
+		if (!targeting) return false;
+		if (!value) return false;
+		if (!(value instanceof Fighter)) return false;
+
+		const caster = targeting.caster;
+		if (!caster) return false;
+
+		return caster === value;
 	}, [targeting, value]);
 
 	useEffect(() => {
@@ -38,5 +50,8 @@ export function useTargeting<T>(value: T) {
 		}
 	}, [isTargetable]);
 
-	return [ref, { isTargetable, isTargeting: Boolean(targeting) }] as const;
+	return [
+		ref,
+		{ isTargetable, isTargeting: Boolean(targeting), isCaster },
+	] as const;
 }

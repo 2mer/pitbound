@@ -1,28 +1,21 @@
 import { Ability } from "@/types/Ability";
 import { Brick } from "@/types/Brick";
-import IconDown from '@/assets/icons/ability/down.png';
-import IconUp from '@/assets/icons/ability/up.png';
+import Icon from '@/assets/icons/ability/move.png';
 import { serializable, serialize } from "@/system/Serialization";
 import { Fighter } from "@/types/Fighter";
 import { LegBrick } from "../bricks/LegBrick";
+import { Targeting } from "@/types/Targeting";
 
-type Direction = 'up' | 'down';
-
-const images = {
-	down: IconDown,
-	up: IconUp,
-} satisfies { [key in Direction]: string };
-
-const dirs = {
-	up: -1,
-	down: 1,
-} satisfies { [key in Direction]: number };
 
 export @serializable('ability.move') class MoveAbility extends Ability<Brick> {
 	name = 'Move';
+	image = Icon;
 
 	@serialize
-	direction: Direction = 'up';
+	minDistance = 1;
+
+	@serialize
+	maxDistance = 1;
 
 	cost = [LegBrick];
 
@@ -30,18 +23,12 @@ export @serializable('ability.move') class MoveAbility extends Ability<Brick> {
 		const fighter = this.closest(Fighter)!;
 		const stage = fighter.stage;
 
-		const allies = stage.getAllies(fighter);
-		const alliesList = allies.values()
-
-		const selfIndex = alliesList.indexOf(fighter);
-		const dir = dirs[this.direction]
-		const swapIndex = selfIndex + dir;
-
 		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
-
 		if (!match.ok) return false;
 
-		return swapIndex >= 0 && swapIndex < alliesList.length;
+		const neighboors = stage.getNeighboors(fighter, this.minDistance, this.maxDistance);
+
+		return neighboors.length > 0;
 	}
 
 	onClick(): void {
@@ -52,25 +39,43 @@ export @serializable('ability.move') class MoveAbility extends Ability<Brick> {
 		const alliesList = allies.values()
 
 		const selfIndex = alliesList.indexOf(fighter);
-		const dir = dirs[this.direction]
-		const swapIndex = selfIndex + dir;
 
-		const swapFighter = alliesList[swapIndex];
+		const neighboors = stage.getNeighboors(fighter, this.minDistance, this.maxDistance);
 
-		alliesList[swapIndex] = fighter;
-		alliesList[selfIndex] = swapFighter;
+		const match = fighter!.bricks.getPattern(this.cost, Brick.canUseBrick);
 
-		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
-		match.hits.forEach(Brick.useBrick)
+		stage.startTargeting(Targeting<Fighter>({
+			ability: this,
+			caster: fighter,
 
-		stage.update();
+			canTarget(target) {
+				return neighboors.includes(target);
+			},
+
+			onTarget(target) {
+				allies.items.splice(selfIndex, 1);
+
+				const swapIndex = allies.items.indexOf(target);
+
+				allies.items.splice(swapIndex >= selfIndex ? swapIndex + 1 : swapIndex, 0, fighter);
+
+				match.hits.forEach(Brick.useBrick)
+
+				stage.update();
+
+				stage.stopTargeting();
+			},
+		}))
 	}
 
 	getDescription(): string {
-		return `Move the fighter ${this.direction}`
-	}
 
-	getImage(): string {
-		return images[this.direction] ?? this.image;
+		const spaces = () => {
+			if (this.minDistance === this.maxDistance) return this.minDistance;
+
+			return `${this.minDistance}-${this.maxDistance}`;
+		}
+
+		return `Move the fighter ${spaces()} spaces`
 	}
 }
