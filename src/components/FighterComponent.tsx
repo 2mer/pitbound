@@ -54,7 +54,11 @@ function FighterComponent({
 							isTargeting &&
 								!isTargetable &&
 								!isCaster &&
-								'filter saturate-0 brightness-[25%]'
+								'filter saturate-0 brightness-[25%]',
+
+							isTargeting &&
+								isCaster &&
+								`mr-[calc(theme('size.unit')*8)]`
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
