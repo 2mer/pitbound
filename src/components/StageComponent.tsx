@@ -1,35 +1,37 @@
-import styled from 'styled-components';
 import { Stage } from '../types/Stage';
-import FighterComponent from './FighterComponent';
 import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import { Button } from './ui/button';
-import { playSound } from '@/utils/SoundPlayer';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TargetingContext } from './TargetingContext';
 import useEventListener from '@/hooks/useEventListener';
 import { useForceUpdate } from '@/hooks/useForceUpdate';
 import { cn } from '@/lib/utils';
-import AbilityComponent from './AbilityComponent';
+import WorldEventComponent from './WorldEventComponent';
+import TargetingIndicator from './TargetingIndicator';
 import { AnimatePresence, motion } from 'framer-motion';
-
-const Scroller = styled.div`
-	display: flex;
-	justify-content: stretch;
-	width: 100%;
-	height: 100%;
-	align-items: stretch;
-`;
+import IconButton from './IconButton';
+import MapIcon from '@/assets/icons/ui/map.png';
+import SettingsIcon from '@/assets/icons/ui/settings.png';
+import NodeMapComponent from './NodeMapComponent';
 
 export const StageContext = createContext(({ stage }: { stage: Stage }) => {
 	return useConst(() => stage);
 });
 
 function StageComponent({ stage }: { stage: Stage }) {
+	const [mapOpen, setMapOpen] = useState(false);
+
 	useEffect(() => {
 		function handleSpace(e: KeyboardEvent) {
 			if (e.key === ' ') {
 				stage.endTurn();
+				e.preventDefault();
+				e.stopPropagation();
+			} else if (e.key === 'Escape') {
+				setMapOpen(false);
+			} else if (e.key === 'm' || e.key === 'M') {
+				setMapOpen((m) => !m);
 			}
 		}
 		document.addEventListener('keypress', handleSpace);
@@ -64,87 +66,107 @@ function StageComponent({ stage }: { stage: Stage }) {
 	return (
 		<StageContext.Provider stage={stage}>
 			<TargetingContext.Provider targeting={stage.targeting}>
-				<Scroller>
-					<div className='grid grid-cols-[1fr_auto_1fr] justify-center gap-[calc(theme(size.unit)*4)] p-[calc(theme(size.unit)*4)] flex-1 w-full items-center relative'>
+				<div
+					className='flex flex-col h-[100vh] w-[100vw]'
+					style={{ background: stage.background }}
+				>
+					{/* action bar */}
+					<div className=' bg-black text-white w-full p-unit-4 grid grid-cols-3 font-barlow items-center'>
+						<div className='justify-self-start'>T+{stage.turn}</div>
+						<div className='justify-self-center text-center'>
+							{stage.world.position.depth}m
+						</div>
+						<div className='justify-self-end flex gap-unit-4'>
+							<IconButton
+								icon={MapIcon}
+								onClick={() => setMapOpen((p) => !p)}
+								tooltip={'Map (M)'}
+							/>
+							<IconButton
+								icon={SettingsIcon}
+								onClick={() => {}}
+								tooltip={'Options (O)'}
+							/>
+						</div>
+					</div>
+
+					{/* stage content */}
+					<motion.div
+						layoutId='stageContent'
+						className='flex-1 min-h-0 relative'
+					>
 						<div
 							className={cn(
-								'absolute inset-0 z-[-1] transition-all duration-500',
-								isTargeting &&
-									// 'before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-hue-rotate-90'
-									'hue-rotate-90 brightness-[0.2]'
+								'h-full w-full relative overflow-auto'
+								// mapOpen ? 'overflow-hidden' : 'overflow-auto'
 							)}
-							style={{
-								background: stage.background,
-								// filter: isTargeting
-								// 	? 'hue-rotate(90deg) blur(20px)'
-								// 	: '',
-							}}
-						/>
-
-						<motion.div className='flex flex-col gap-[calc(theme(size.unit)*4)] items-end'>
-							{stage.friendly.values().map((f) => (
-								<FighterComponent key={f.id} fighter={f} />
-							))}
-						</motion.div>
-
-						<div className='flex self-stretch border-l-unit border-black border-opacity-20' />
-
-						<div className='flex flex-col gap-[calc(theme(size.unit)*4)] items-start'>
-							{stage.hostile.values().map((f) => (
-								<FighterComponent
-									key={f.id}
-									fighter={f}
-									flipped
+						>
+							{/* events grid */}
+							<div
+								className={cn(
+									'grid grid-cols-[1fr_auto_1fr] justify-center gap-[calc(theme(size.unit)*4)] p-[calc(theme(size.unit)*10)] flex-1 w-full items-center relative'
+								)}
+							>
+								<div
+									className={cn(
+										'absolute inset-0 z-[-1] transition-all duration-500',
+										isTargeting &&
+											// 'before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-hue-rotate-90'
+											'hue-rotate-90 brightness-[0.2]'
+									)}
+									style={
+										{
+											// filter: isTargeting
+											// 	? 'hue-rotate(90deg) blur(20px)'
+											// 	: '',
+										}
+									}
 								/>
-							))}
-						</div>
 
-						{/* actions */}
-						<div className='fixed right-0 bottom-0 flex p-unit-4'>
+								<WorldEventComponent
+									worldEvent={stage.world.leftEvent}
+								/>
+
+								<div className='flex self-stretch border-l-unit border-black border-opacity-20' />
+
+								<WorldEventComponent
+									worldEvent={stage.world.rightEvent}
+								/>
+							</div>
+
+							<TargetingIndicator />
+						</div>
+						<AnimatePresence>
+							{mapOpen && (
+								<motion.div
+									className='absolute inset-0'
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+								>
+									<NodeMapComponent
+										PixiProps={{
+											className: 'w-full h-full',
+										}}
+									/>
+								</motion.div>
+							)}
+						</AnimatePresence>
+					</motion.div>
+
+					<div className='flex justify-end bg-black text-white w-full p-unit-4'>
+						<div className='flex justify-end'>
 							<Button
+								variant={'secondary'}
 								onClick={() => {
 									stage.endTurn();
-									playSound('click');
 								}}
 							>
 								End Turn
 							</Button>
 						</div>
-
-						{/* targeting indication */}
-						<AnimatePresence>
-							{isTargeting && (
-								<motion.div
-									className='fixed left-0 top-0 flex p-unit pr-unit-4 pointer-events-none bg-black border-solid border-unit border-slate-700 gap-unit-4 m-unit-4 items-center text-white'
-									onClick={() => {
-										stage.endTurn();
-										playSound('click');
-									}}
-								>
-									{stage?.targeting?.caster && (
-										<img
-											src={stage.targeting.caster.image}
-											className='rendering-pixelated transition-all duration-200'
-											style={{
-												width: stage.targeting.caster
-													.width,
-												height: stage.targeting.caster
-													.height,
-											}}
-										/>
-									)}
-									{stage?.targeting?.ability && (
-										<AbilityComponent
-											ability={stage?.targeting?.ability}
-										/>
-									)}
-
-									<div>Choose a target</div>
-								</motion.div>
-							)}
-						</AnimatePresence>
 					</div>
-				</Scroller>
+				</div>
 			</TargetingContext.Provider>
 		</StageContext.Provider>
 	);

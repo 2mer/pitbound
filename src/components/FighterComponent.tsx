@@ -56,14 +56,14 @@ function FighterComponent({
 								!isCaster &&
 								'filter saturate-0 brightness-[25%]',
 
-							isTargeting &&
-								isCaster &&
-								`mr-[calc(theme('size.unit')*8)]`
+							isTargeting && isCaster && flipped
+								? `ml-[calc(theme('size.unit')*8)]`
+								: `mr-[calc(theme('size.unit')*8)]`
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						ref={ref}
+						ref={ref as any}
 					>
 						<div
 							className='p-unit border-solid border-unit border-b-0 bg-black text-white font-barlow justify-center text-center'

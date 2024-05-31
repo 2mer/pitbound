@@ -5,16 +5,16 @@ import Color from "color";
 import { Effect } from "./Effect";
 import { v4 } from "uuid";
 import EventEmitter from "eventemitter3";
-import { Stage } from "./Stage";
 import { Nested, related } from "./Nested";
 import { ComponentSystem } from "./Component";
 import { serializable, serialize } from "@/system/Serialization";
+import { FighterEvent } from "@/presets/worldevents/FighterEvent";
 
 export type FighterEvents = {
 	update: () => void;
 }
 
-export @serializable('fighter') class Fighter extends Nested<Stage> {
+export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 	@serialize id = v4();
 	@serialize @related effects = new ComponentSystem<Effect<Fighter>>();
 	@serialize @related inventory = new ComponentSystem<Item<Fighter>>();
@@ -33,8 +33,26 @@ export @serializable('fighter') class Fighter extends Nested<Stage> {
 
 	@serialize private _isDead = false;
 
-	get stage() {
+	@serialize isHostile = false;
+
+	get isFriendly() {
+		return !this.isHostile;
+	}
+
+	get event() {
 		return this.parent!;
+	}
+
+	get world() {
+		return this.event.parent!;
+	}
+
+	get stage() {
+		return this.world.parent!;
+	}
+
+	get allies() {
+		return this.event.fighters;
 	}
 
 	die() {
@@ -58,5 +76,10 @@ export @serializable('fighter') class Fighter extends Nested<Stage> {
 		if (this._isDead) return false;
 
 		return this.getLivingBricks().filter(b => b.contributesToHealth).length > 0;
+	}
+
+	hostile() {
+		this.isHostile = true;
+		return this;
 	}
 }

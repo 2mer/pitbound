@@ -27,7 +27,9 @@ export class Nested<TParent> {
 		this.parent = p;
 		this.isAdded = true;
 
-		if (this.related) {
+		const related = this.related;
+
+		if (related) {
 			this.related.forEach(r => {
 				r.onAdded(this);
 			});
@@ -127,5 +129,10 @@ export @serializable('children') class Children<T extends Nested<any>> extends N
 
 	isEmpty() {
 		return !(this.items.length);
+	}
+
+	setChildren(children: T[]) {
+		this.clear();
+		this.addAll(...children)
 	}
 }

@@ -4,6 +4,7 @@ import { Pixify, usePixiEffect } from './Pixi';
 import { R1, R2 } from '@/utils/PRandom';
 import { mix } from '@/utils/Math';
 import { vec2 } from 'gl-matrix';
+import { StageContext } from './StageComponent';
 
 export interface WorldState {
 	age: number;
@@ -84,9 +85,13 @@ function getDepthWorldWidth(depth: number, min: number, max: number) {
 }
 
 const NodeMapComponent = Pixify(
-	HookComponent(({ world }: { world: WorldState }) => {
+	HookComponent(() => {
+		const stage = StageContext.use();
+		const { world } = stage;
+
 		// setup
-		usePixiEffect(({ viewport }) => {
+		usePixiEffect(({ app, viewport }) => {
+			app.resizeTo = app.canvas;
 			viewport
 				.wheel({ smooth: 3 })
 				.pinch()
@@ -97,12 +102,14 @@ const NodeMapComponent = Pixify(
 
 		usePixiEffect(
 			({ viewport }) => {
+				const capabilities = stage.getCapabilities();
+
 				const minIndex = Math.max(
 					0,
-					world.position.depth - world.capability.vision.up
+					world.position.depth - capabilities.vision.up
 				);
 				const maxIndex =
-					world.position.depth + world.capability.vision.down;
+					world.position.depth + capabilities.vision.down;
 
 				for (let depth = minIndex; depth <= maxIndex; depth++) {
 					const nodes = getDepthNodes(depth);

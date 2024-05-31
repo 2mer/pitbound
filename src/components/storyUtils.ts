@@ -27,7 +27,7 @@ export function getRandomFighter() {
 
 	fighter.color = getRandomColor();
 
-	fighter.bricks = Array.from({ length: getRandomInt(3, 6) }).fill(null).map(getRandomBrick);
+	fighter.bricks.setChildren(Array.from({ length: getRandomInt(3, 6) }).fill(null).map(getRandomBrick));
 
 	return fighter;
 }

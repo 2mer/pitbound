@@ -1,9 +1,12 @@
 import EventEmitter from "eventemitter3";
 import { Fighter } from "./Fighter";
 import { Targeting } from "./Targeting";
-import { Children } from "./Nested";
 import { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { v4 } from "uuid";
+import { World } from "./World";
+import { WorldEvent } from "./WorldEvent";
+import { FighterEvent } from "@/presets/worldevents/FighterEvent";
+import { playSound } from "@/utils/SoundPlayer";
 
 export const Side = {
 	FRIENDLY: 'friendly',
@@ -31,13 +34,11 @@ export @serializable('stage') class Stage {
 
 	@serialize background: string = 'linear-gradient(to bottom, gray, darkgray)';
 
-	@serialize friendly = new Children<Fighter>();
-
-	@serialize hostile = new Children<Fighter>();
-
 	targeting?: Targeting<any>;
 
 	@serialize turn = 0;
+
+	@serialize world = new World();
 
 	constructor() {
 		this.init();
@@ -45,45 +46,13 @@ export @serializable('stage') class Stage {
 
 	@postDeserialize
 	init() {
-		this.friendly.onAdded(this);
-		this.hostile.onAdded(this);
-	}
-
-	isHostile(fighter: Fighter) {
-		return this.hostile.values().some(f => f.id === fighter.id);
-	}
-
-	isFriendly(fighter: Fighter) {
-		return this.friendly.values().some(f => f.id === fighter.id);
+		this.world.onAdded(this);
 	}
 
 	getSide(fighter: Fighter) {
-		return this.isFriendly(fighter) ? Side.FRIENDLY : Side.HOSTILE;
+		return fighter.isFriendly ? Side.FRIENDLY : Side.HOSTILE;
 	}
 
-	getFighters(side: Side) {
-		return this[side];
-	}
-
-	getEnemies(fighter: Fighter) {
-		return this.getFighters(oppositeSide(this.getSide(fighter)));
-	}
-
-	getAllies(fighter: Fighter) {
-		return this.getFighters(this.getSide(fighter));
-	}
-
-	getAllFighters() {
-		return [...this.friendly.values(), ...this.hostile.values()];
-	}
-
-	addFighter(side: Side, fighter: Fighter) {
-		this[side].addChild(fighter);
-	}
-
-	removeFighter(side: Side, fighter: Fighter) {
-		this[side].removeChild(fighter);
-	}
 
 	update() {
 		this.events.emit('update');
@@ -102,7 +71,11 @@ export @serializable('stage') class Stage {
 	endTurn() {
 		this.events.emit('turnEnd', { stage: this })
 
+		playSound('click');
+
 		this.turn++;
+
+		this.update();
 
 		this.startTurn();
 	}
@@ -111,26 +84,30 @@ export @serializable('stage') class Stage {
 		this.events.emit('turnStart', { stage: this })
 	}
 
-	getAbove(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
-		const allies = this.getAllies(fighter).values();
-		const fIndex = allies.indexOf(fighter);
-		const minIndex = 0;
-
-		return allies.slice(Math.max(minIndex, fIndex - maxDistance), Math.max(minIndex, fIndex - minDistance + 1)).filter(f => f !== fighter);
+	getCapabilities() {
+		return {
+			vision: {
+				up: 3,
+				down: 3,
+			}
+		}
 	}
 
-	getBelow(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
-		const allies = this.getAllies(fighter).values();
-		const fIndex = allies.indexOf(fighter);
-		const maxIndex = allies.length;
+	getEventFighters(event: WorldEvent) {
+		if (event instanceof FighterEvent) {
+			return event.fighters.values();
+		}
 
-		return allies.slice(Math.min(fIndex + minDistance, maxIndex), Math.min(fIndex + maxDistance + 1, maxIndex)).filter(f => f !== fighter);
+		return [];
 	}
 
-	getNeighboors(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
-		return [
-			...this.getAbove(fighter, minDistance, maxDistance),
-			...this.getBelow(fighter, minDistance, maxDistance),
-		]
+	getFigthers() {
+		return [this.world.leftEvent, this.world.rightEvent].flatMap(this.getEventFighters);
+	}
+
+	getEnemies(fighter: Fighter) {
+		const { isHostile } = fighter;
+
+		return this.getFigthers().filter(f => f.isHostile !== isHostile);
 	}
 }

@@ -1,6 +1,5 @@
 import { Brick } from '../types/Brick';
 import { FighterContext } from './FighterComponent';
-import { StageContext } from './StageComponent';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -20,11 +19,10 @@ export const BrickContext = createContext(({ brick }: { brick: Brick }) =>
 );
 
 function BrickComponent({ brick }: { brick: Brick }) {
-	const stage = StageContext.use();
 	const fighter = FighterContext.use();
 
 	const description = brick.getDescription();
-	const isFriendly = stage.isFriendly(fighter);
+	const isFriendly = fighter.isFriendly;
 	const canClick = brick.canClick();
 
 	const [ref, { isTargetable, isTargeting }] = useTargeting(brick);

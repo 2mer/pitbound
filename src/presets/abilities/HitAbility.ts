@@ -35,7 +35,7 @@ export @serializable('ability.hit') class HitAbility<T> extends Ability<T> {
 		const fighter = this.closest(Fighter)!;
 		const stage = fighter.stage;
 
-		const enemies = stage.getEnemies(fighter).values();
+		const enemies = stage.getEnemies(fighter);
 
 		enemies.forEach(e => {
 			const firstBrick = e.getLivingBricks().at(-1);

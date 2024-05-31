@@ -17,6 +17,8 @@ import { HandBrick } from '@/presets/bricks/HandBrick';
 import { Ability } from '@/types/Ability';
 import { Brick } from '@/types/Brick';
 import { Skull } from '@/presets/fighters/Skull';
+import { PartyEvent } from '@/presets/worldevents/PartyEvent';
+import { BattleEvent } from '@/presets/worldevents/BattleEvent';
 
 const meta: Meta<typeof StageComponent> = {
 	component: StageComponent,
@@ -40,15 +42,23 @@ export const Random: Story = {
 		const stage = useConst(() => {
 			const s = new Stage();
 
+			const friendly = new PartyEvent();
+			const hostile = new BattleEvent();
+
 			Array.from({ length: getRandomInt(2, 5) }).forEach(() => {
-				s.friendly.addChild(getRandomFighter());
+				friendly.fighters.addChild(getRandomFighter());
 			});
 
 			Array.from({ length: getRandomInt(2, 5) }).forEach(() => {
-				s.hostile.addChild(getRandomEnemy());
+				hostile.fighters.addChild(getRandomEnemy());
 			});
 
 			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
+
+			s.world.leftEvent = friendly;
+			s.world.rightEvent = hostile;
+
+			s.init();
 
 			return s;
 		});
@@ -84,16 +94,18 @@ export const Attack: Story = {
 		const stage = useConst(() => {
 			const s = new Stage();
 
-			s.friendly.addAll(
+			s.world.leftEvent = new PartyEvent().addFighters(
 				new Pitling().set({ color: new Color(0x00ff00) })
 			);
 
-			s.hostile.addAll(
-				new Pitling().set({ color: new Color(0xff0000) }),
-				new Pitling().set({ color: new Color(0xff0000) })
+			s.world.rightEvent = new BattleEvent().addFighters(
+				new Pitling().set({ color: new Color(0xff0000) }).hostile(),
+				new Pitling().set({ color: new Color(0xff0000) }).hostile()
 			);
 
 			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
+
+			s.init();
 
 			return s;
 		});
@@ -107,7 +119,7 @@ export const Targeting: Story = {
 		const stage = useConst(() => {
 			const s = new Stage();
 
-			s.friendly.addAll(
+			s.world.leftEvent = new PartyEvent().addFighters(
 				new Dev().transform((dev) => {
 					class TargetBelow5 extends Ability<Brick> {
 						name = 'B5';
@@ -150,9 +162,42 @@ export const Targeting: Story = {
 				new Skull()
 			);
 
-			s.hostile.addAll(new Pitling(), new Pitling());
+			s.world.rightEvent = new BattleEvent().addFighters(
+				new Pitling().hostile(),
+				new Pitling().hostile()
+			);
 
 			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
+
+			s.init();
+
+			return s;
+		});
+
+		return <StageComponent stage={stage} />;
+	},
+};
+
+export const Flipped: Story = {
+	render() {
+		const stage = useConst(() => {
+			const s = new Stage();
+
+			s.world.rightEvent = new PartyEvent().addFighters(
+				new Dev(),
+				new Collector(),
+				new Pitling(),
+				new Skull()
+			);
+
+			s.world.leftEvent = new BattleEvent().addFighters(
+				new Pitling().hostile(),
+				new Pitling().hostile()
+			);
+
+			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
+
+			s.init();
 
 			return s;
 		});
