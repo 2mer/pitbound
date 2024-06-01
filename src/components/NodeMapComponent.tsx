@@ -5,6 +5,7 @@ import { R1, R2 } from '@/utils/PRandom';
 import { mix } from '@/utils/Math';
 import { vec2 } from 'gl-matrix';
 import { StageContext } from './StageComponent';
+import { World } from '@/types/World';
 
 export interface WorldState {
 	age: number;
@@ -22,7 +23,7 @@ export interface WorldState {
 	};
 }
 
-function getDepthNodes(depth: number) {
+function getDepthNodes(world: World, depth: number) {
 	if (depth < 0) return [];
 	// const minNodes = 9;
 	// const maxNodes = 24;
@@ -49,13 +50,18 @@ function getDepthNodes(depth: number) {
 	for (let nodeIndex = 0; nodeIndex < nodesInDepth; nodeIndex++) {
 		const radius = mix(10, 25, R2(nodeIndex, depth * nodesInDepth));
 
-		const color = 0xffffff * R2(radius * depth, nodeIndex);
+		// const color = 0xffffff * R2(radius * depth, nodeIndex);
+
+		const event = world.getEventAt({ depth, horizontalIndex: nodeIndex });
+
+		const color = event.color.rgbNumber();
 
 		const offsetX = mix(
 			-25,
 			25,
 			R2(nodeIndex * 1253.86423, depth * -9728.12846)
 		);
+
 		const offsetY = mix(
 			-25,
 			25,
@@ -68,7 +74,7 @@ function getDepthNodes(depth: number) {
 			remainderWidth / 2;
 		const y = depth * depthHeight + offsetY;
 
-		nodes.push({ x, y, radius, color });
+		nodes.push({ x, y, radius, color, event });
 	}
 
 	return nodes;
@@ -112,8 +118,8 @@ const NodeMapComponent = Pixify(
 					world.position.depth + capabilities.vision.down;
 
 				for (let depth = minIndex; depth <= maxIndex; depth++) {
-					const nodes = getDepthNodes(depth);
-					const nodesBelow = getDepthNodes(depth + 1);
+					const nodes = getDepthNodes(world, depth);
+					const nodesBelow = getDepthNodes(world, depth + 1);
 
 					nodes.forEach((node, index) => {
 						const { x, y, radius, color } = node;
@@ -147,6 +153,15 @@ const NodeMapComponent = Pixify(
 							})
 							.circle(x, y, radius)
 							.stroke();
+
+						circle.cursor = 'pointer';
+						circle.eventMode = 'static';
+
+						circle.on('click', () => {
+							if (!world.canMove()) return;
+
+							world.moveTo({ depth, horizontalIndex: index });
+						});
 
 						if (
 							depth === world.position.depth &&

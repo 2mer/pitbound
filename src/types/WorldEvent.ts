@@ -3,6 +3,7 @@ import { v4 } from "uuid";
 import { Nested } from "./Nested";
 import EventEmitter from "eventemitter3";
 import { World } from "./World";
+import Color from "color";
 
 type Events = {
 	update: () => void;
@@ -14,8 +15,10 @@ export @serializable('worldEvent') class WorldEvent extends Nested<World> {
 	@serialize
 	id = v4();
 	name = 'World Event';
-	isBlocking = false;
 	isComplete = false;
+
+	color = new Color();
+	image = '';
 
 	get world() {
 		return this.parent!;
@@ -32,6 +35,10 @@ export @serializable('worldEvent') class WorldEvent extends Nested<World> {
 
 	getOppositeEvent() {
 		return this.parent!.getOppositeEvent(this);
+	}
+
+	isBlocking() {
+		return false;
 	}
 
 }

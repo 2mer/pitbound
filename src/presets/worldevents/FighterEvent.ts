@@ -5,7 +5,6 @@ import { WorldEvent } from "@/types/WorldEvent";
 
 export @serializable('worldEvent.fighterEvent') class FighterEvent extends WorldEvent {
 	name = 'Fighter Event';
-	isBlocking = false;
 
 	@serialize @related fighters = new Children<Fighter>();
 
@@ -36,4 +35,5 @@ export @serializable('worldEvent.fighterEvent') class FighterEvent extends World
 			...this.getBelow(fighter, minDistance, maxDistance),
 		]
 	}
+
 }

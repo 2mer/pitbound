@@ -63,6 +63,10 @@ function StageComponent({ stage }: { stage: Stage }) {
 		};
 	}, [stage, isTargeting]);
 
+	useEffect(() => {
+		setMapOpen(false);
+	}, [stage.world.position]);
+
 	return (
 		<StageContext.Provider stage={stage}>
 			<TargetingContext.Provider targeting={stage.targeting}>
@@ -156,14 +160,27 @@ function StageComponent({ stage }: { stage: Stage }) {
 
 					<div className='flex justify-end bg-black text-white w-full p-unit-4'>
 						<div className='flex justify-end'>
-							<Button
-								variant={'secondary'}
-								onClick={() => {
-									stage.endTurn();
-								}}
-							>
-								End Turn
-							</Button>
+							{stage.world.canMove() ? (
+								<Button
+									variant={'secondary'}
+									className={cn(!mapOpen && 'animate-bounce')}
+									disabled={mapOpen}
+									onClick={() => {
+										setMapOpen(true);
+									}}
+								>
+									Leave
+								</Button>
+							) : (
+								<Button
+									variant={'secondary'}
+									onClick={() => {
+										stage.endTurn();
+									}}
+								>
+									End Turn
+								</Button>
+							)}
 						</div>
 					</div>
 				</div>

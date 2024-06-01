@@ -1,26 +1,18 @@
 import { Ability } from "@/types/Ability";
 import { Fighter } from "@/types/Fighter";
-import { Attacker } from "../components/Attacker";
-import Icon from '@/assets/icons/ability/hit.png';
+import Icon from '@/assets/icons/ability/target.png';
 import { HandBrick } from "../bricks/HandBrick";
 import { Tuple } from "@/types/Tuple";
 import { serializable } from "@/system/Serialization";
 import { Brick } from "@/types/Brick";
 
-export @serializable('ability.hit') class HitAbility<T> extends Ability<T> {
+export @serializable('ability.kill') class KillAbility extends Ability<Brick> {
 	image = Icon;
 
-	name = 'Hit';
+	name = 'Kill';
 
 	constructor() {
 		super();
-		this.components.addAll(
-			new Attacker()
-		)
-	}
-
-	get $attacker() {
-		return this.components.getT(Attacker);
 	}
 
 	cost = Tuple(HandBrick);
@@ -37,8 +29,6 @@ export @serializable('ability.hit') class HitAbility<T> extends Ability<T> {
 
 		const match = fighter.bricks.getPattern(this.cost, Brick.canUseBrick);
 
-		const attacker = this.$attacker!;
-
 		fighter.update();
 
 		stage.startTargeting<Fighter>({
@@ -50,20 +40,17 @@ export @serializable('ability.hit') class HitAbility<T> extends Ability<T> {
 			},
 
 			onTarget(target) {
-				const firstBrick = target.getLivingBricks().at(-1);
-				if (!firstBrick) return;
-
-				firstBrick.damage({ attacker: fighter, amount: attacker.attack });
 
 				match.hits.forEach(Brick.useBrick)
-				stage.stopTargeting();
 
-				target.update();
+				target.die();
+
+				stage.stopTargeting();
 			},
 		})
 	}
 
 	getDescription(): string {
-		return `Damage targeted brick for ${this.$attacker!.attack}`
+		return `Kill target`
 	}
 }

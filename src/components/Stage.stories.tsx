@@ -205,3 +205,31 @@ export const Flipped: Story = {
 		return <StageComponent stage={stage} />;
 	},
 };
+
+export const Map: Story = {
+	render() {
+		const stage = useConst(() => {
+			const s = new Stage();
+
+			s.world.leftEvent = new PartyEvent().addFighters(
+				new Dev(),
+				new Collector(),
+				new Pitling(),
+				new Skull()
+			);
+
+			// s.world.rightEvent = new BattleEvent().addFighters(
+			// 	new Pitling().hostile(),
+			// 	new Pitling().hostile()
+			// );
+
+			s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
+
+			s.init();
+
+			return s;
+		});
+
+		return <StageComponent stage={stage} />;
+	},
+};

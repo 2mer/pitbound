@@ -35,6 +35,7 @@ export function useTargeting<T>(value: T) {
 	useEffect(() => {
 		if (isTargetable) {
 			const el = ref.current!;
+			if (!el) return;
 
 			function handleClick(e: MouseEvent) {
 				e.stopPropagation();

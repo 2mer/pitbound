@@ -7,6 +7,7 @@ import { serializable, serialize } from "@/system/Serialization";
 import { LogStageAbility } from "../abilities/LogStageAbility";
 import { LegBrick } from "../bricks/LegBrick";
 import { MoveAbility } from "../abilities/MoveAbility";
+import { KillAbility } from "../abilities/KillAbility";
 
 export @serializable('fighter.dev') class Dev extends Fighter {
 	name = 'Dev';
@@ -27,9 +28,11 @@ export @serializable('fighter.dev') class Dev extends Fighter {
 			new HandBrick()
 				.set({ health: 7, maxHealth: 7 })
 				.transform(b => {
+					b.$usable!.set({ uses: Infinity });
 					b.abilities.addAll(
 						new InspectAbility(),
 						new LogStageAbility(),
+						new KillAbility(),
 					)
 				}),
 		)
