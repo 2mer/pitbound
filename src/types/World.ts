@@ -5,6 +5,7 @@ import { Stage } from "./Stage";
 import { EmptyEvent } from "@/presets/worldevents/EmptyEvent";
 import { R3, V, weightedRandom } from "@/utils/PRandom";
 import { WEIGHTED_EVENT_GENERATORS } from "@/presets/worldevents";
+import { SerializableMap } from "@/system/SerializableMap";
 
 export type WorldSide = 'LEFT' | 'RIGHT'
 
@@ -27,6 +28,9 @@ export @serializable('world') class World extends Nested<Stage> {
 		depth: 0,
 		horizontalIndex: 0,
 	};
+
+	@serialize
+	persistent = new SerializableMap<string, WorldEvent>();
 
 	@serialize @related
 	leftEvent: WorldEvent = new EmptyEvent();
@@ -61,7 +65,17 @@ export @serializable('world') class World extends Nested<Stage> {
 		this.parent!.update();
 	}
 
+	positionToKey(position: WorldPosition) {
+		return position.depth + "_" + position.horizontalIndex;
+	}
+
 	getEventAt(position: WorldPosition): WorldEvent {
+
+		const found = this.persistent.get(this.positionToKey(position));
+
+		if (found) {
+			return found;
+		}
 
 		const r = R3(position.depth, position.horizontalIndex, 0);
 
@@ -74,5 +88,9 @@ export @serializable('world') class World extends Nested<Stage> {
 
 	getDangerAt(position: WorldPosition) {
 		return V.perlinNoise(V.from(position.depth, position.horizontalIndex));
+	}
+
+	persist(event: WorldEvent) {
+		this.persistent.set(this.positionToKey(this.position), event);
 	}
 };

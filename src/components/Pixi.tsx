@@ -35,6 +35,7 @@ function Pixi({
 		async function setupApp() {
 			await app.init({
 				canvas: ref.current!,
+				antialias: true,
 			});
 
 			const viewport = new Viewport({
@@ -46,6 +47,10 @@ function Pixi({
 			app.stage.addChild(viewport);
 
 			app.start();
+
+			app.renderer.on('resize', (width: number, height: number) => {
+				viewport.resize(width, height, WORLD_SIZE, WORLD_SIZE);
+			});
 
 			return { app, viewport };
 		}

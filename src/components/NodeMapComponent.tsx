@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics, Sprite } from 'pixi.js';
 import HookComponent from './HookComponent';
 import { Pixify, usePixiEffect } from './Pixi';
 import { R1, R2 } from '@/utils/PRandom';
@@ -21,6 +21,43 @@ export interface WorldState {
 			down: number;
 		};
 	};
+}
+
+interface DashedLineOptions {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	dashLength: number;
+	gapLength: number;
+}
+
+function drawDashedLine(graphics: Graphics, options: DashedLineOptions): void {
+	const { x1, y1, x2, y2, dashLength, gapLength } = options;
+
+	const deltaX = x2 - x1;
+	const deltaY = y2 - y1;
+	const lineLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+	const dashCount = Math.floor(lineLength / (dashLength + gapLength));
+	const dashX = (deltaX / lineLength) * dashLength;
+	const dashY = (deltaY / lineLength) * dashLength;
+	const gapX = (deltaX / lineLength) * gapLength;
+	const gapY = (deltaY / lineLength) * gapLength;
+
+	let currentX = x1;
+	let currentY = y1;
+
+	for (let i = 0; i < dashCount; i++) {
+		graphics.moveTo(currentX, currentY);
+		currentX += dashX;
+		currentY += dashY;
+		graphics.lineTo(currentX, currentY);
+		currentX += gapX;
+		currentY += gapY;
+	}
+	// Draw the last segment if necessary
+	graphics.moveTo(currentX, currentY);
+	graphics.lineTo(x2, y2);
 }
 
 function getDepthNodes(world: World, depth: number) {
@@ -122,38 +159,53 @@ const NodeMapComponent = Pixify(
 					const nodesBelow = getDepthNodes(world, depth + 1);
 
 					nodes.forEach((node, index) => {
-						const { x, y, radius, color } = node;
+						const { x, y, radius, color, event } = node;
+
+						const nodeContainer = new Container();
 
 						const circle = new Graphics();
+						const sprite = Sprite.from(event.image);
+
+						nodeContainer.addChild(circle);
+						nodeContainer.addChild(sprite);
+
+						sprite.texture.baseTexture.scaleMode = 'nearest';
 
 						nodesBelow.forEach((nb) => {
 							const n2 = vec2.fromValues(x, y);
 							const nb2 = vec2.fromValues(nb.x, nb.y);
 
 							const d = vec2.dist(n2, nb2);
-							// if (d < 250) {
+
 							if (d < getDepthWorldWidth(depth, 150, 250)) {
-								circle
-									.setStrokeStyle({
-										width: 3,
-										color: 0xacacac,
-									})
-									.moveTo(x, y)
-									.lineTo(nb.x, nb.y)
-									.stroke();
+								circle.setStrokeStyle({
+									width: 3,
+									color: 0xacacac,
+								});
+
+								drawDashedLine(circle, {
+									x1: x,
+									y1: y,
+									x2: nb.x,
+									y2: nb.y,
+									dashLength: 20,
+									gapLength: 10,
+								});
+
+								circle.stroke();
 							}
 						});
 
-						circle
-							.circle(x, y, radius)
-							.fill(color)
-							.setStrokeStyle({
-								width: 2,
-								color: 0xffffff - color,
-							})
-							.circle(x, y, radius)
-							.stroke();
+						circle.circle(x, y, radius).fill(0);
 
+						sprite.anchor.set(0.5, 0.5);
+						sprite.width = radius * 1.2;
+						sprite.height = radius * 1.2;
+						sprite.position.set(x, y);
+
+						sprite.tint = event.isComplete() ? 0xacacac : color;
+
+						sprite.eventMode = 'none';
 						circle.cursor = 'pointer';
 						circle.eventMode = 'static';
 
@@ -168,13 +220,13 @@ const NodeMapComponent = Pixify(
 							index === world.position.horizontalIndex
 						) {
 							circle
-								.setStrokeStyle({ color: 0xff0000, width: 2 })
-								.circle(x, y, radius * 1.2)
-								.circle(x, y, radius * 1.4)
+								.setStrokeStyle({ color: 0xac00ff, width: 2 })
+								.circle(x, y, radius * 2)
+								.circle(x, y, radius * 2.4)
 								.stroke();
 						}
 
-						viewport.addChild(circle);
+						viewport.addChild(nodeContainer);
 					});
 
 					if (depth === world.position.depth) {

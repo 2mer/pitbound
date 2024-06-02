@@ -1,7 +1,7 @@
 import { EventGenrator, World, WorldPosition } from "@/types/World";
 import { WorldEvent } from "@/types/WorldEvent";
 import { EmptyEvent } from "./EmptyEvent";
-import { BattleScenarios } from "./BattleEvent";
+import { BattleScenarios } from "./BattleScenarios";
 import { R2, randomEntry } from "@/utils/PRandom";
 
 const BASE_WEIGHT = 10;
