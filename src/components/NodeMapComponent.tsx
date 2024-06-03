@@ -1,4 +1,13 @@
-import { Container, Graphics, Sprite } from 'pixi.js';
+import {
+	Container,
+	Filter,
+	GlProgram,
+	Graphics,
+	Rectangle,
+	Sprite,
+	UniformGroup,
+	defaultFilterVert,
+} from 'pixi.js';
 import HookComponent from './HookComponent';
 import { Pixify, usePixiEffect } from './Pixi';
 import { R1, R2 } from '@/utils/PRandom';
@@ -6,6 +15,7 @@ import { mix } from '@/utils/Math';
 import { vec2 } from 'gl-matrix';
 import { StageContext } from './StageComponent';
 import { World } from '@/types/World';
+import fragmentShader from './NodeMapFrag.frag?raw';
 
 export interface WorldState {
 	age: number;
@@ -127,6 +137,31 @@ function getDepthWorldWidth(depth: number, min: number, max: number) {
 	return mix(min, max, depthProgress);
 }
 
+// const fragmentShader = `
+//     precision mediump float;
+//     varying vec2 vTextureCoord;
+//     uniform sampler2D uSampler;
+// 	uniform vec4 uTest;
+
+//     void main(void) {
+
+//         //vec4 color = texture2D(uSampler, vTextureCoord);
+//         // gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.5, 1.0) * color;
+//         // gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0., 1.0);
+//         // gl_FragColor = vec4(1.0);
+// 		// vec2 st = fract(gl_FragCoord.xy/10.);
+//         // gl_FragColor = vec4(st, 0.,1.);
+
+// 		vec2 st = (gl_FragCoord.xy - uTest.xy) / uTest.zw;
+
+// 		vec4 color = vec4(0.);
+
+// 		color = vec4(st, 0., 1.);
+
+//         gl_FragColor = color;
+//     }
+// `;
+
 const NodeMapComponent = Pixify(
 	HookComponent(() => {
 		const stage = StageContext.use();
@@ -144,7 +179,7 @@ const NodeMapComponent = Pixify(
 		}, []);
 
 		usePixiEffect(
-			({ viewport }) => {
+			({ viewport, app }) => {
 				const capabilities = stage.getCapabilities();
 
 				const minIndex = Math.max(
@@ -236,6 +271,107 @@ const NodeMapComponent = Pixify(
 						viewport.moveCenter(currentNode.x, currentNode.y);
 					}
 				}
+
+				const shader = new Filter({
+					glProgram: new GlProgram({
+						fragment: fragmentShader,
+						vertex: defaultFilterVert,
+					}),
+
+					resources: {
+						testUniforms: new UniformGroup({
+							uTest: {
+								value: new Float32Array([0, 0, 0, 0]),
+								type: 'vec4<f32>',
+							},
+
+							uWorld: {
+								value: new Float32Array([0, 0, 0, 0]),
+								type: 'vec4<f32>',
+							},
+
+							uResolution: {
+								value: new Float32Array([11110, 11110]),
+								type: 'vec2<f32>',
+							},
+						}),
+					},
+				});
+
+				const bg = new Graphics();
+				bg.rect(0, 0, 100, 100).fill(0xffffff).position.set(0, 0);
+
+				bg.zIndex = -1;
+				app.stage.addChild(bg);
+
+				const stageBounds = app.stage.getBounds();
+
+				bg.x = stageBounds.x;
+				bg.y = stageBounds.y;
+				bg.width = stageBounds.width;
+				bg.height = stageBounds.height;
+
+				console.log({ stageBounds });
+
+				function positionBG() {
+					// const vLocal = viewport.getLocalBounds();
+					// const vWorld = viewport.getBounds();
+					// bg.x = vLocal.x;
+					// bg.y = vLocal.y;
+					// bg.width = vLocal.width;
+					// bg.height = vLocal.height;
+					// bg.filterArea = new Rectangle(
+					// 	vLocal.x,
+					// 	vLocal.y,
+					// 	vLocal.width,
+					// 	vLocal.height
+					// );
+				}
+				positionBG();
+
+				viewport.on('moved', (e) => {
+					positionBG();
+
+					// const bounds = e.viewport.getBounds();
+					const visibleBounds = viewport.getVisibleBounds();
+
+					shader.resources.testUniforms.uniforms.uResolution =
+						new Float32Array([
+							viewport.screenWidth,
+							viewport.screenHeight,
+						]);
+
+					// shader.resources.testUniforms.uniforms.uTest =
+					// 	new Float32Array([
+					// 		bounds.left,
+					// 		e.viewport.screenHeight - bounds.bottom,
+					// 		bounds.width,
+					// 		bounds.height,
+					// 	]);
+
+					// viewport.toWorld();
+
+					shader.resources.testUniforms.uniforms.uWorld =
+						new Float32Array([
+							visibleBounds.x,
+							visibleBounds.y,
+							visibleBounds.width,
+							visibleBounds.height,
+						]);
+				});
+
+				bg.filters = [shader];
+
+				const bounds = viewport.getBounds();
+
+				shader.resources.testUniforms.uniforms.uTest = new Float32Array(
+					[
+						bounds.left,
+						viewport.screenHeight - bounds.bottom,
+						bounds.width,
+						bounds.height,
+					]
+				);
 			},
 			[world]
 		);
