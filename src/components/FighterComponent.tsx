@@ -6,8 +6,6 @@ import useEventListener from '../hooks/useEventListener';
 import { createContext } from '@sgty/kontext-react';
 import useConst from '@/hooks/useConst';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
-import { playSound } from '@/utils/SoundPlayer';
 import { useTargeting } from './TargetingContext';
 import { cn } from '@/lib/utils';
 
@@ -26,12 +24,6 @@ function FighterComponent({
 }) {
 	const update = useForceUpdate();
 	useEventListener(fighter.events, 'update', update);
-
-	useEffect(() => {
-		if (!fighter.isAlive()) {
-			playSound('die');
-		}
-	}, [fighter.isAlive()]);
 
 	const [ref, { isTargeting, isTargetable, isCaster }] =
 		useTargeting(fighter);

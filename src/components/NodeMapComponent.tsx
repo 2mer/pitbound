@@ -3,7 +3,6 @@ import {
 	Filter,
 	GlProgram,
 	Graphics,
-	Rectangle,
 	Sprite,
 	UniformGroup,
 	defaultFilterVert,
@@ -246,6 +245,7 @@ const NodeMapComponent = Pixify(
 
 						circle.on('click', () => {
 							if (!world.canMove()) return;
+							console.log({ event });
 
 							world.moveTo({ depth, horizontalIndex: index });
 						});
@@ -313,26 +313,7 @@ const NodeMapComponent = Pixify(
 
 				console.log({ stageBounds });
 
-				function positionBG() {
-					// const vLocal = viewport.getLocalBounds();
-					// const vWorld = viewport.getBounds();
-					// bg.x = vLocal.x;
-					// bg.y = vLocal.y;
-					// bg.width = vLocal.width;
-					// bg.height = vLocal.height;
-					// bg.filterArea = new Rectangle(
-					// 	vLocal.x,
-					// 	vLocal.y,
-					// 	vLocal.width,
-					// 	vLocal.height
-					// );
-				}
-				positionBG();
-
-				viewport.on('moved', (e) => {
-					positionBG();
-
-					// const bounds = e.viewport.getBounds();
+				function updateShaderViewport() {
 					const visibleBounds = viewport.getVisibleBounds();
 
 					shader.resources.testUniforms.uniforms.uResolution =
@@ -341,16 +322,6 @@ const NodeMapComponent = Pixify(
 							viewport.screenHeight,
 						]);
 
-					// shader.resources.testUniforms.uniforms.uTest =
-					// 	new Float32Array([
-					// 		bounds.left,
-					// 		e.viewport.screenHeight - bounds.bottom,
-					// 		bounds.width,
-					// 		bounds.height,
-					// 	]);
-
-					// viewport.toWorld();
-
 					shader.resources.testUniforms.uniforms.uWorld =
 						new Float32Array([
 							visibleBounds.x,
@@ -358,7 +329,10 @@ const NodeMapComponent = Pixify(
 							visibleBounds.width,
 							visibleBounds.height,
 						]);
-				});
+				}
+
+				viewport.on('moved', updateShaderViewport);
+				updateShaderViewport();
 
 				bg.filters = [shader];
 

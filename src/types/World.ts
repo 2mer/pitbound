@@ -1,4 +1,4 @@
-import { serializable, serialize } from "@/system/Serialization";
+import { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { WorldEvent } from "./WorldEvent";
 import { Nested, related } from "./Nested";
 import { Stage } from "./Stage";
@@ -6,6 +6,7 @@ import { EmptyEvent } from "@/presets/worldevents/EmptyEvent";
 import { R3, V, weightedRandom } from "@/utils/PRandom";
 import { WEIGHTED_EVENT_GENERATORS } from "@/presets/worldevents";
 import { SerializableMap } from "@/system/SerializableMap";
+import { RopeConnection } from "./RopeConnection";
 
 export type WorldSide = 'LEFT' | 'RIGHT'
 
@@ -30,18 +31,32 @@ export @serializable('world') class World extends Nested<Stage> {
 	};
 
 	@serialize
-	persistent = new SerializableMap<string, WorldEvent>();
+	persistentEvents = new SerializableMap<string, WorldEvent>();
+	persistentRopes: RopeConnection[] = [];
+	nodeToRopeMap = new Map<string, RopeConnection[]>();
 
 	@serialize @related
 	leftEvent: WorldEvent = new EmptyEvent();
 	@serialize @related
 	rightEvent: WorldEvent = new EmptyEvent();
 
-	getOppositeEvent(event: WorldEvent) {
+	constructor() {
+		super();
+		this.init();
+	}
+
+	@postDeserialize
+	init() {
+		this.persistentRopes.forEach(rope => {
+			this.addRopeLookup(rope);
+		})
+	}
+
+	getOppositeEvent(event: WorldEvent<any>) {
 		return this.leftEvent === event ? this.rightEvent : this.leftEvent;
 	}
 
-	getWorldSide(event: WorldEvent): WorldSide {
+	getWorldSide(event: WorldEvent<any>): WorldSide {
 		return this.leftEvent === event ? 'LEFT' : 'RIGHT';
 	}
 
@@ -62,6 +77,8 @@ export @serializable('world') class World extends Nested<Stage> {
 
 		this.rightEvent.onAdded(this);
 
+		this.rightEvent.onVisit();
+
 		this.parent!.update();
 	}
 
@@ -69,9 +86,9 @@ export @serializable('world') class World extends Nested<Stage> {
 		return position.depth + "_" + position.horizontalIndex;
 	}
 
-	getEventAt(position: WorldPosition): WorldEvent {
+	getEventAt(position: WorldPosition): WorldEvent<any> {
 
-		const found = this.persistent.get(this.positionToKey(position));
+		const found = this.persistentEvents.get(this.positionToKey(position));
 
 		if (found) {
 			return found;
@@ -90,7 +107,40 @@ export @serializable('world') class World extends Nested<Stage> {
 		return V.perlinNoise(V.from(position.depth, position.horizontalIndex));
 	}
 
-	persist(event: WorldEvent) {
-		this.persistent.set(this.positionToKey(this.position), event);
+	persist(event: WorldEvent<any>) {
+		this.persistentEvents.set(this.positionToKey(this.position), event);
+	}
+
+	addRopeLookup(rope: RopeConnection) {
+		this.nodeToRopeMap.set(this.positionToKey(rope.from), [...(this.nodeToRopeMap.get(this.positionToKey(rope.from)) ?? []), rope]);
+		this.nodeToRopeMap.set(this.positionToKey(rope.to), [...(this.nodeToRopeMap.get(this.positionToKey(rope.to)) ?? []), rope]);
+	}
+
+
+	createRopeConnection(to: WorldPosition) {
+		const rope = new RopeConnection().set({
+			from: { ...this.position },
+			to,
+		});
+		this.persistentRopes.push(rope);
+		this.addRopeLookup(rope);
+	}
+
+	removeRopeConnection(rope: RopeConnection) {
+
+		const withoutRope = (r: RopeConnection) => r !== rope;
+
+		this.persistentRopes = this.persistentRopes.filter(withoutRope);
+
+		this.nodeToRopeMap.set(this.positionToKey(rope.from), (this.nodeToRopeMap.get(this.positionToKey(rope.from)) ?? []).filter(withoutRope));
+		this.nodeToRopeMap.set(this.positionToKey(rope.to), (this.nodeToRopeMap.get(this.positionToKey(rope.to)) ?? []).filter(withoutRope));
+	}
+
+	removeNodeRopes(position: WorldPosition) {
+		const ropes = this.nodeToRopeMap.get(this.positionToKey(position)) ?? [];
+
+		ropes.forEach(r => {
+			this.removeRopeConnection(r);
+		})
 	}
 };

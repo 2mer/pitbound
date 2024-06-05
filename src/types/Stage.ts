@@ -22,6 +22,7 @@ type Events = {
 	update: () => void;
 	turnEnd: (ctx: { stage: Stage }) => void;
 	turnStart: (ctx: { stage: Stage }) => void;
+	lose: () => void;
 }
 
 
@@ -87,8 +88,8 @@ export @serializable('stage') class Stage {
 	getCapabilities() {
 		return {
 			vision: {
-				up: 3,
-				down: 3,
+				up: 30,
+				down: 100,
 			}
 		}
 	}
@@ -109,5 +110,9 @@ export @serializable('stage') class Stage {
 		const { isHostile } = fighter;
 
 		return this.getFigthers().filter(f => f.isHostile !== isHostile);
+	}
+
+	onLose() {
+		this.events.emit('lose');
 	}
 }

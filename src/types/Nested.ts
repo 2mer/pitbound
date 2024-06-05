@@ -1,4 +1,5 @@
 import { serializable, serialize } from "@/system/Serialization";
+import EventEmitter from "eventemitter3";
 
 const RelatedSymbol = Symbol('related');
 
@@ -77,7 +78,14 @@ export class Nested<TParent> {
 type NestedParent<T extends Nested<any>> = T extends Nested<infer R> ? R : never;
 
 
+export type ChildrenEvents<T extends Nested<any>> = {
+	childAdded: (c: T) => void;
+	childRemoved: (c: T) => void;
+}
+
 export @serializable('children') class Children<T extends Nested<any>> extends Nested<NestedParent<T>> {
+	events = new EventEmitter<ChildrenEvents<T>>();
+
 	@serialize
 	items: T[] = [];
 
@@ -91,12 +99,15 @@ export @serializable('children') class Children<T extends Nested<any>> extends N
 		}
 
 		this.items.push(item);
+		this.events.emit('childAdded', item);
+
 		return item;
 	}
 
 	removeChild(item: T) {
 		if (this.isAdded) {
 			item.onRemoved(this.parent);
+			this.events.emit('childRemoved', item);
 		}
 
 		this.items.splice(this.items.indexOf(item), 1);
@@ -134,5 +145,22 @@ export @serializable('children') class Children<T extends Nested<any>> extends N
 	setChildren(children: T[]) {
 		this.clear();
 		this.addAll(...children)
+	}
+
+	effect(cb: (c: T) => (void | (() => void))) {
+		this.events.on('childAdded', c => {
+			const cleanup = cb(c);
+
+			if (cleanup) {
+				const handleRemove = (_c: T) => {
+					if (c === _c) {
+						cleanup();
+						this.events.off('childRemoved', handleRemove);
+					}
+				}
+
+				this.events.on('childRemoved', handleRemove)
+			}
+		})
 	}
 }

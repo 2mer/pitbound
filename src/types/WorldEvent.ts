@@ -7,14 +7,14 @@ import Color from "color";
 import Icon from '@/assets/icons/ui/empty.png';
 import { Assets } from "pixi.js";
 
-type Events = {
+export type WorldEventEvents = {
 	update: () => void;
 }
 
 Assets.load(Icon);
 
-export @serializable('worldEvent') class WorldEvent extends Nested<World> {
-	events = new EventEmitter<Events>();
+export @serializable('worldEvent') class WorldEvent<T extends WorldEventEvents = WorldEventEvents> extends Nested<World> {
+	events = new EventEmitter<T>();
 
 	@serialize
 	id = v4();

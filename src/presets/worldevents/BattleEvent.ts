@@ -11,12 +11,24 @@ export @serializable('worldEvent.battle') class BattleEvent extends FighterEvent
 	color = new Color(0xFF0000);
 	image = Icon;
 
+	init(): void {
+		super.init();
+
+		this.events.on('allFightersDead', () => {
+			this.world.persist(this);
+		})
+	}
+
 	isBlocking(): boolean {
 		return this.fighters.values().some(f => f.isAlive());
 	}
 
 	isComplete(): boolean {
-		return !this.isBlocking;
+		return !this.isBlocking();
+	}
+
+	onVisit(): void {
+		this.world.persist(this);
 	}
 }
 

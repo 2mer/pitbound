@@ -1,12 +1,36 @@
-import { serializable, serialize } from "@/system/Serialization";
+import { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { Fighter } from "@/types/Fighter";
 import { Children, related } from "@/types/Nested";
-import { WorldEvent } from "@/types/WorldEvent";
+import { WorldEvent, WorldEventEvents } from "@/types/WorldEvent";
+import { subs } from "@/utils/Subs";
 
-export @serializable('worldEvent.fighterEvent') class FighterEvent extends WorldEvent {
+export type FighterEventEvents = WorldEventEvents & {
+	allFightersDead: () => void;
+}
+
+export @serializable('worldEvent.fighterEvent') class FighterEvent extends WorldEvent<FighterEventEvents> {
 	name = 'Fighter Event';
 
+
 	@serialize @related fighters = new Children<Fighter>();
+
+	constructor() {
+		super();
+		this.init();
+	}
+
+	@postDeserialize
+	init() {
+		this.fighters.effect(fighter => {
+			return subs(fighter.events, {
+				death: () => {
+					if (this.fighters.values().every(f => f.isDead())) {
+						this.events.emit('allFightersDead');
+					}
+				}
+			})
+		})
+	}
 
 	addFighters(...fighters: Fighter[]) {
 		this.fighters.addAll(...fighters);

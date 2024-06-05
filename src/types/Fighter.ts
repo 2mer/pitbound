@@ -7,11 +7,14 @@ import { v4 } from "uuid";
 import EventEmitter from "eventemitter3";
 import { Nested, related } from "./Nested";
 import { ComponentSystem } from "./Component";
-import { serializable, serialize } from "@/system/Serialization";
+import { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { FighterEvent } from "@/presets/worldevents/FighterEvent";
+import { subs } from "@/utils/Subs";
+import { playSound } from "@/utils/SoundPlayer";
 
 export type FighterEvents = {
 	update: () => void;
+	death: () => void;
 }
 
 export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
@@ -35,6 +38,24 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 
 	@serialize isHostile = false;
 
+	constructor() {
+		super();
+		this.init();
+	}
+
+	@postDeserialize
+	init() {
+		this.bricks.effect(brick => {
+			return subs(brick.events, {
+				death: () => {
+					if (this.isDead()) {
+						this.die();
+					}
+				},
+			})
+		})
+	}
+
 	get isFriendly() {
 		return !this.isHostile;
 	}
@@ -57,7 +78,9 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 
 	die() {
 		this._isDead = true;
+		this.events.emit('death');
 		this.update();
+		playSound('die');
 	}
 
 	update() {
