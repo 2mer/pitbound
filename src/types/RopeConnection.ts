@@ -1,5 +1,5 @@
 import { serializable, serialize } from "@/system/Serialization";
-import { WorldPosition } from "./World";
+import type { WorldPosition } from "./World";
 
 export @serializable('ropeConnection') class RopeConnection {
 

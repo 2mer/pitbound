@@ -9,6 +9,8 @@ import Serialization from './Serialization';
 import { useMemo, useState } from 'react';
 import StageComponent from '@/components/StageComponent';
 import { Button } from '@/components/ui/button';
+import { PartyEvent } from '@/presets/worldevents/PartyEvent';
+import { BattleEvent } from '@/presets/worldevents/BattleEvent';
 
 const meta: Meta<any> = {
 	component: () => <div />,
@@ -25,9 +27,15 @@ const Example = () => {
 	const stage = useConst(() => {
 		const s = new Stage();
 
-		s.friendly.addAll(new Dev(), new Collector());
+		s.world.leftEvent = new PartyEvent().addFighters(
+			new Dev(),
+			new Collector()
+		);
 
-		s.hostile.addAll(new Pitling(), new Pitling());
+		s.world.rightEvent = new BattleEvent().addFighters(
+			new Pitling().hostile(),
+			new Pitling().hostile()
+		);
 
 		s.background = `linear-gradient(to bottom, ${getRandomColor().hex()}, ${getRandomColor().hex()})`;
 

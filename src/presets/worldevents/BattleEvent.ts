@@ -19,15 +19,13 @@ export @serializable('worldEvent.battle') class BattleEvent extends FighterEvent
 		})
 	}
 
-	isBlocking(): boolean {
-		return this.fighters.values().some(f => f.isAlive());
-	}
 
 	isComplete(): boolean {
 		return !this.isBlocking();
 	}
 
 	onVisit(): void {
+		this.stage.startTurn();
 		this.world.persist(this);
 	}
 }

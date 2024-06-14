@@ -26,7 +26,7 @@ export @serializable('brick.attack') class AttackBrick extends Brick {
 	}
 
 	public canClick(): boolean {
-		if (!this.stage.isFriendly(this.fighter)) return false;
+		if (this.fighter.isHostile) return false;
 
 		return this.usable!.canUse();
 	}

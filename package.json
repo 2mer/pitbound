@@ -25,6 +25,7 @@
     "howler": "^2.2.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.378.0",
+    "madge": "^7.0.0",
     "pixi-dashed-line": "^1.4.2",
     "pixi-viewport": "^5.0.3",
     "pixi.js": "^8.1.5",

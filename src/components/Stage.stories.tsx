@@ -125,12 +125,12 @@ export const Targeting: Story = {
 						name = 'B5';
 						description = 'Taarget brick with less than 5 hp';
 
-						canClick() {
+						canUse() {
 							return true;
 						}
 
-						onClick(): void {
-							const stage = this.closest(Stage)!;
+						onUse(): void {
+							const stage = this.parent!.stage;
 
 							stage.startTargeting<any>({
 								ability: this,

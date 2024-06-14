@@ -1,6 +1,6 @@
 import EventEmitter from "eventemitter3";
 import { Fighter } from "./Fighter";
-import { Targeting } from "./Targeting";
+import type { Targeting } from "./Targeting";
 import { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { v4 } from "uuid";
 import { World } from "./World";
@@ -78,11 +78,36 @@ export @serializable('stage') class Stage {
 
 		this.update();
 
-		this.startTurn();
+		if (!this.world.canMove()) {
+			const leftFighters = this.getEventFighters(this.world.leftEvent);
+			const rightFighters = this.getEventFighters(this.world.rightEvent);
+
+			[leftFighters, rightFighters].forEach(fighterGroup => {
+				fighterGroup.forEach(f => {
+					if (!f.controllable) {
+						f.controller.playTurn();
+					}
+				})
+			});
+
+			this.startTurn();
+		}
+
 	}
 
 	startTurn() {
-		this.events.emit('turnStart', { stage: this })
+		const leftFighters = this.getEventFighters(this.world.leftEvent);
+		const rightFighters = this.getEventFighters(this.world.rightEvent);
+
+		[leftFighters, rightFighters].forEach(fighterGroup => {
+			fighterGroup.forEach(f => {
+				if (!f.controllable) {
+					f.controller.prepare();
+				}
+			})
+		});
+
+		this.events.emit('turnStart', { stage: this });
 	}
 
 	getCapabilities() {

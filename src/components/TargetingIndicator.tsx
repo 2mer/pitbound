@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { StageContext } from './StageComponent';
+import { StageContext } from './StageContext';
 import AbilityComponent from './AbilityComponent';
 
 function TargetingIndicator() {

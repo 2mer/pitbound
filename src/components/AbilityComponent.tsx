@@ -17,11 +17,11 @@ function AbilityComponent({
 					src={ability.getImage()}
 					className={cn(
 						'h-[32px] w-[32px] rendering-pixelated transition-all duration-200',
-						ability.canClick() ? 'cursor-pointer' : 'opacity-25'
+						ability.canUse() ? 'cursor-pointer' : 'opacity-25'
 					)}
 					onClick={() => {
-						if (ability.canClick()) {
-							ability.onClick();
+						if (ability.canUse()) {
+							ability.onUse();
 							onClick?.();
 						}
 					}}

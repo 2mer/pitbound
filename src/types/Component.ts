@@ -22,6 +22,10 @@ export @serializable('components') class ComponentSystem<T extends Component<any
 		return this.typeHash.get(clzz) as any;
 	}
 
+	$<C extends typeof Component<any>>(clzz: C): InstanceType<C> | undefined {
+		return this.getT(clzz);
+	}
+
 	hasT<C extends typeof Component<any>>(clzz: C) {
 		return this.typeHash.get(clzz) !== undefined;
 	}
@@ -49,6 +53,10 @@ export @serializable('components') class ComponentSystem<T extends Component<any
 		})
 
 		return { ok: (res.length === pattern.length) && res.every(Boolean), hits: res as ClassesToInstances<C> };
+	}
+
+	$$<C extends typeof Component<any>[]>(...pattern: C) {
+		return this.getPattern(pattern).hits;
 	}
 
 	@postDeserialize

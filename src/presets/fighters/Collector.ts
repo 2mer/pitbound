@@ -11,6 +11,8 @@ export @serializable('fighter.collector') class Collector extends Fighter {
 	image = Image;
 	color = new Color(0x23674e);
 
+	controllable: boolean = true;
+
 	constructor() {
 		super();
 

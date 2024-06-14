@@ -12,7 +12,7 @@ import { Pixify, usePixiEffect } from './Pixi';
 import { R1, R2 } from '@/utils/PRandom';
 import { mix } from '@/utils/Math';
 import { vec2 } from 'gl-matrix';
-import { StageContext } from './StageComponent';
+import { StageContext } from './StageContext';
 import { World } from '@/types/World';
 import fragmentShader from './NodeMapFrag.frag?raw';
 
@@ -69,14 +69,13 @@ function drawDashedLine(graphics: Graphics, options: DashedLineOptions): void {
 	graphics.lineTo(x2, y2);
 }
 
+const widthPerNode = 200;
+const depthHeight = 150;
+const minWorldWidth = 700;
+const maxWorldWidth = 2500;
+
 function getDepthNodes(world: World, depth: number) {
 	if (depth < 0) return [];
-	// const minNodes = 9;
-	// const maxNodes = 24;
-	const widthPerNode = 200;
-	const depthHeight = 150;
-	const minWorldWidth = 700;
-	const maxWorldWidth = 2500;
 
 	const depthWidth = getDepthWorldWidth(depth, minWorldWidth, maxWorldWidth);
 	const nodesInDepth = Math.floor(
@@ -245,7 +244,6 @@ const NodeMapComponent = Pixify(
 
 						circle.on('click', () => {
 							if (!world.canMove()) return;
-							console.log({ event });
 
 							world.moveTo({ depth, horizontalIndex: index });
 						});
@@ -268,7 +266,9 @@ const NodeMapComponent = Pixify(
 						const currentNode =
 							nodes[world.position.horizontalIndex];
 
-						viewport.moveCenter(currentNode.x, currentNode.y);
+						const fitWidth = maxWorldWidth;
+						viewport.fitWidth(fitWidth);
+						viewport.moveCenter(fitWidth / 2, currentNode.y);
 					}
 				}
 
@@ -310,8 +310,6 @@ const NodeMapComponent = Pixify(
 				bg.y = stageBounds.y;
 				bg.width = stageBounds.width;
 				bg.height = stageBounds.height;
-
-				console.log({ stageBounds });
 
 				function updateShaderViewport() {
 					const visibleBounds = viewport.getVisibleBounds();

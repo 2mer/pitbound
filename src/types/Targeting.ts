@@ -10,6 +10,8 @@ export interface Targeting<T> {
 
 	ability?: Ability<any>;
 	caster?: Fighter;
+
+	originEl?: HTMLElement;
 }
 
 export function Targeting<T>(v: Targeting<T>) {

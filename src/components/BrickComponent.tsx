@@ -1,5 +1,5 @@
 import { Brick } from '../types/Brick';
-import { FighterContext } from './FighterComponent';
+import { FighterContext } from './FighterContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -8,15 +8,10 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { createContext } from '@sgty/kontext-react';
-import useConst from '@/hooks/useConst';
 import AbilitiesPopover from './AbilitiesPopover';
 import { useTargeting } from './TargetingContext';
 import UsedIcon from '@/assets/icons/ability/used.png';
-
-export const BrickContext = createContext(({ brick }: { brick: Brick }) =>
-	useConst(() => brick)
-);
+import { BrickContext } from './BrickContext';
 
 function BrickComponent({ brick }: { brick: Brick }) {
 	const fighter = FighterContext.use();
@@ -32,6 +27,7 @@ function BrickComponent({ brick }: { brick: Brick }) {
 			<AnimatePresence>
 				{brick.isAlive() && (
 					<motion.div
+						id={brick.id}
 						className={cn(
 							'flex flex-col relative group/brick',
 							isTargeting &&
@@ -73,7 +69,7 @@ function BrickComponent({ brick }: { brick: Brick }) {
 												)}
 											/>
 										</AbilitiesPopover>
-										{!brick.$usable!.canUse() && (
+										{!Brick.canUseBrick(brick) && (
 											<img
 												src={UsedIcon}
 												className='absolute top-0 right-0 w-[32px] h-[32px] rendering-pixelated pointer-events-none'

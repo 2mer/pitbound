@@ -1,7 +1,6 @@
 import { Ability } from "@/types/Ability";
 import { Brick } from "@/types/Brick";
 import Icon from '@/assets/icons/ability/insepct.png';
-import { Stage } from "@/types/Stage";
 import { serializable } from "@/system/Serialization";
 
 export @serializable('ability.inspect') class InspectAbility extends Ability<Brick> {
@@ -9,17 +8,17 @@ export @serializable('ability.inspect') class InspectAbility extends Ability<Bri
 	name = 'Inspect';
 	description = 'Click on an element to log it out to the console';
 
-	canClick() {
+	canUse() {
 		return true;
 	}
 
-	onClick(): void {
-		const stage = this.closest(Stage)!;
+	onUse(): void {
+		const stage = this.parent!.stage;
 
 		stage.startTargeting<any>({
 			ability: this,
 
-			canTarget(target) {
+			canTarget() {
 				return true;
 			},
 

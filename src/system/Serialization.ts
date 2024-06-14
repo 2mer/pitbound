@@ -130,7 +130,7 @@ export function createSerialization() {
 				meta.keys = [...meta.keys, propertyKey];
 			},
 
-			postDeserialize(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+			postDeserialize(target: any, propertyKey: string, _: PropertyDescriptor) {
 				const meta = getOrCreateMeta(target.constructor);
 				meta.postDeserialize ??= [];
 

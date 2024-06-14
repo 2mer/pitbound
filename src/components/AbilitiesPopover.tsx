@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { BrickContext } from './BrickComponent';
+import { BrickContext } from './BrickContext';
 import AbilityComponent from './AbilityComponent';
 
 function AbilitiesPopover({ children }: PropsWithChildren<{}>) {

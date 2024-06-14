@@ -1,5 +1,5 @@
 import { serializable } from "@/system/Serialization";
-import { Brick, Ctx } from "@/types/Brick";
+import { Brick } from "@/types/Brick";
 import { Keyword } from "@/types/Keyword";
 import Color from "color";
 
@@ -21,7 +21,7 @@ export @serializable('keyword.essential') class EssentialKeyword extends Keyword
 		target.events.off('death', this.handleTargetDeath, this);
 	}
 
-	handleTargetDeath(ctx: Ctx<'death'>) {
+	handleTargetDeath() {
 		const target = this.parent!.fighter;
 
 		if (!target.getLivingBricks().some(b => b.keywords.hasT(EssentialKeyword))) {

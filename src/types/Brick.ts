@@ -1,17 +1,18 @@
 import { v4 } from 'uuid';
 import Color from "color";
-import { Stage } from './Stage';
-import { Fighter } from './Fighter';
+import type { Stage } from './Stage';
+import type { Fighter } from './Fighter';
 import { Effect } from './Effect';
 import UnknownImage from '../assets/icons/brick/unknown.png'
 import { Keyword } from './Keyword';
 import EventEmitter from 'eventemitter3';
 import { Component, ComponentSystem } from './Component';
 import { Nested, related } from './Nested';
-import { Ability } from './Ability';
+import type { Ability } from './Ability';
 import { Usable } from '@/presets/components/Usable';
 import { playSound } from '@/utils/SoundPlayer';
 import { serializable, serialize } from '@/system/Serialization';
+import { INestFighter, INestStage } from './INest';
 
 export type ActionCtx = {
 	stage: Stage;
@@ -28,7 +29,7 @@ export type Events = {
 
 export type Ctx<T extends keyof Events> = Events[T] extends (e: infer R) => any ? R : never;
 
-export @serializable('brick') class Brick extends Nested<Fighter> {
+export @serializable('brick') class Brick extends Nested<Fighter> implements INestFighter, INestStage {
 	@serialize @related effects = new ComponentSystem<Effect<Brick>>();
 	@serialize @related keywords = new ComponentSystem<Keyword<Brick>>();
 	@serialize @related components = new ComponentSystem<Component<Brick>>().transform(c => c.addAll(new Usable<Brick>()));
@@ -126,7 +127,9 @@ export @serializable('brick') class Brick extends Nested<Fighter> {
 		const allAbilities = this.abilities.values();
 		if (!allAbilities.length) return false;
 
-		return allAbilities.some(a => a.canClick());
+		if (!this.fighter.controllable) return false;
+
+		return allAbilities.some(a => a.canUse());
 	}
 
 	getDescription() {
@@ -134,6 +137,9 @@ export @serializable('brick') class Brick extends Nested<Fighter> {
 	}
 
 	static canUseBrick(brick: Brick) {
+		if (!brick) return false;
+		if (brick.isDead()) return false;
+
 		return brick.$usable!.canUse();
 	}
 

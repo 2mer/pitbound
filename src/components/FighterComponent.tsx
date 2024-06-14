@@ -3,17 +3,12 @@ import Horizontal from './Horizontal';
 import BrickComponent from './BrickComponent';
 import { useForceUpdate } from '../hooks/useForceUpdate';
 import useEventListener from '../hooks/useEventListener';
-import { createContext } from '@sgty/kontext-react';
-import useConst from '@/hooks/useConst';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTargeting } from './TargetingContext';
 import { cn } from '@/lib/utils';
-
-export const FighterContext = createContext(
-	({ fighter }: { fighter: Fighter }) => {
-		return useConst(() => fighter);
-	}
-);
+import { FighterContext } from './FighterContext';
+import { StagePixiOverlay } from './StagePixiOverlay';
+import { FillGradient, Graphics } from 'pixi.js';
 
 function FighterComponent({
 	fighter,
@@ -28,11 +23,79 @@ function FighterComponent({
 	const [ref, { isTargeting, isTargetable, isCaster }] =
 		useTargeting(fighter);
 
+	const { controller } = fighter;
+	const { intent } = controller;
+
+	StagePixiOverlay.useResizeEffect(
+		({ app }) => {
+			const g = new Graphics();
+
+			intent.intents.forEach((i) => {
+				const { origin, target, type } = i;
+
+				const oBounds = document
+					.getElementById(origin.id)!
+					.getBoundingClientRect();
+				const tBounds = document
+					.getElementById(target.id)!
+					.getBoundingClientRect();
+				const aBounds = app.canvas.getBoundingClientRect();
+
+				const color = type === 'harmful' ? 0xff0000 : 0x00ff00;
+				const width = 4;
+
+				const gradient = new FillGradient(
+					oBounds.x - aBounds.x + oBounds.width / 2,
+					oBounds.y - aBounds.y + oBounds.height / 2,
+					tBounds.x - aBounds.x + tBounds.width / 2,
+					tBounds.y - aBounds.y + tBounds.height / 2
+				);
+
+				gradient.addColorStop(0, 0x000000);
+				gradient.addColorStop(1, color);
+
+				g.setStrokeStyle({ width, fill: gradient });
+
+				// g.rect(
+				// 	oBounds.x - aBounds.x - width / 2,
+				// 	oBounds.y - aBounds.y - width / 2,
+				// 	oBounds.width + width,
+				// 	oBounds.height + width
+				// );
+				g.rect(
+					tBounds.x - aBounds.x - width / 2,
+					tBounds.y - aBounds.y - width / 2,
+					tBounds.width + width,
+					tBounds.height + width
+				);
+				g.moveTo(
+					oBounds.x - aBounds.x + oBounds.width / 2,
+					oBounds.y - aBounds.y + oBounds.height / 2
+				);
+				g.lineTo(
+					tBounds.x - aBounds.x + tBounds.width / 2,
+					tBounds.y - aBounds.y + tBounds.height / 2
+				);
+
+				g.stroke();
+			});
+
+			app.stage.addChild(g);
+
+			return () => {
+				app.stage.removeChild(g);
+				g.destroy();
+			};
+		},
+		[intent]
+	);
+
 	return (
 		<FighterContext.Provider fighter={fighter}>
 			<AnimatePresence>
 				{fighter.isAlive() && (
 					<motion.div
+						id={fighter.id}
 						layout
 						className={cn(
 							'flex flex-col group/fighter',
@@ -48,9 +111,11 @@ function FighterComponent({
 								!isCaster &&
 								'filter saturate-0 brightness-[25%]',
 
-							isTargeting && isCaster && flipped
-								? `ml-[calc(theme('size.unit')*8)]`
-								: `mr-[calc(theme('size.unit')*8)]`
+							isTargeting &&
+								isCaster &&
+								(flipped
+									? `ml-[calc(theme('size.unit')*8)]`
+									: `mr-[calc(theme('size.unit')*8)]`)
 						)}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -74,7 +139,7 @@ function FighterComponent({
 							}}
 						>
 							<div
-								className='bg-black border-unit border-solid border-r-0 box-content relative'
+								className='bg-black border-unit border-solid border-r-0 box-content relative p-unit'
 								style={{
 									transform: flipped
 										? 'scaleX(-1)'

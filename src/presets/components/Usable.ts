@@ -1,9 +1,8 @@
 import { serializable, serialize } from "@/system/Serialization";
 import { Component } from "@/types/Component";
-import { Fighter } from "@/types/Fighter";
-import { Stage } from "@/types/Stage";
+import type { INestFighter, INestStage } from "@/types/INest";
 
-export @serializable('component.usable') class Usable<T> extends Component<T> {
+export @serializable('component.usable') class Usable<T extends INestStage & INestFighter> extends Component<T> {
 	@serialize
 	uses = 1;
 	@serialize
@@ -23,18 +22,18 @@ export @serializable('component.usable') class Usable<T> extends Component<T> {
 
 	public onTurnStart() {
 		this.reset();
-		this.closest(Fighter)!.update();
+		this.parent!.fighter.update();
 	}
 
 	onAdded(target: T): void {
 		super.onAdded(target);
 
-		this.closest(Stage)!.events.on('turnStart', this.onTurnStart, this)
+		this.parent!.stage.events.on('turnStart', this.onTurnStart, this)
 	}
 
 	onRemoved(target: T): void {
 		super.onAdded(target);
 
-		this.closest(Stage)!.events.off('turnStart', this.onTurnStart, this)
+		this.parent!.stage.events.off('turnStart', this.onTurnStart, this)
 	}
 }

@@ -1,12 +1,13 @@
-import { postDeserialize, serializable, serialize } from "@/system/Serialization";
+import { postDeserialize, serializable, serialize } from "../system/Serialization";
 import { WorldEvent } from "./WorldEvent";
 import { Nested, related } from "./Nested";
-import { Stage } from "./Stage";
-import { EmptyEvent } from "@/presets/worldevents/EmptyEvent";
-import { R3, V, weightedRandom } from "@/utils/PRandom";
-import { WEIGHTED_EVENT_GENERATORS } from "@/presets/worldevents";
-import { SerializableMap } from "@/system/SerializableMap";
+import type { Stage } from "./Stage";
+import { EmptyEvent } from "../presets/worldevents/EmptyEvent";
+import { R3, V, weightedRandom } from "../utils/PRandom";
+import { WEIGHTED_EVENT_GENERATORS } from "../presets/worldevents";
+import { SerializableMap } from "../system/SerializableMap";
 import { RopeConnection } from "./RopeConnection";
+import { PartyEvent } from "../presets/worldevents/PartyEvent";
 
 export type WorldSide = 'LEFT' | 'RIGHT'
 
@@ -36,9 +37,9 @@ export @serializable('world') class World extends Nested<Stage> {
 	nodeToRopeMap = new Map<string, RopeConnection[]>();
 
 	@serialize @related
-	leftEvent: WorldEvent = new EmptyEvent();
+	leftEvent: WorldEvent<any> = new EmptyEvent();
 	@serialize @related
-	rightEvent: WorldEvent = new EmptyEvent();
+	rightEvent: WorldEvent<any> = new EmptyEvent();
 
 	constructor() {
 		super();
@@ -64,8 +65,12 @@ export @serializable('world') class World extends Nested<Stage> {
 		return [this.leftEvent, this.rightEvent];
 	}
 
+	getPartyEvent() {
+		return this.leftEvent as unknown as PartyEvent;
+	}
+
 	canMove() {
-		return this.getEvents().every(e => !e.isBlocking());
+		return this.getEvents().every(e => !e.isBlocking()) || this.getPartyEvent().fighters.values().every(f => f.isDead() || f.hasFled);
 	}
 
 	moveTo(position: WorldPosition) {

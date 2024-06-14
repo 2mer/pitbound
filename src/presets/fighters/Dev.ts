@@ -17,6 +17,8 @@ export @serializable('fighter.dev') class Dev extends Fighter {
 	@serialize
 	test = 5;
 
+	controllable: boolean = true;
+
 	constructor() {
 		super();
 

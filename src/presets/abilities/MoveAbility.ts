@@ -19,11 +19,11 @@ export @serializable('ability.move') class MoveAbility extends Ability<Brick> {
 
 	cost = [LegBrick];
 
-	canClick() {
-		const fighter = this.closest(Fighter)!;
+	canUse() {
+		const { fighter } = this.parent!;
 		const { event } = fighter;
 
-		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
+		const match = fighter!.bricks.getPattern(this.cost, Brick.canUseBrick);
 		if (!match.ok) return false;
 
 		const neighboors = event.getNeighboors(fighter, this.minDistance, this.maxDistance);
@@ -31,8 +31,8 @@ export @serializable('ability.move') class MoveAbility extends Ability<Brick> {
 		return neighboors.length > 0;
 	}
 
-	onClick(): void {
-		const fighter = this.closest(Fighter)!;
+	onUse(): void {
+		const { fighter } = this.parent!;
 		const { stage, allies, event } = fighter;
 
 		const alliesList = allies.values()

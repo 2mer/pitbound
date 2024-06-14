@@ -4,8 +4,6 @@ import FighterComponent from './FighterComponent';
 import useConst from '../hooks/useConst';
 import Vertical from './Vertical';
 import Horizontal from './Horizontal';
-import { Brick } from '../types/Brick';
-import Color from 'color';
 import { getRandomBrick } from './storyUtils';
 
 const meta: Meta<typeof FighterComponent> = {
@@ -32,7 +30,9 @@ export const WithBricks: Story = {
 				<Horizontal>
 					<button
 						onClick={() => {
-							fighter.bricks.pop();
+							fighter.bricks.removeChild(
+								fighter.bricks.values()?.[0]
+							);
 							fighter.update();
 						}}
 					>
@@ -40,7 +40,7 @@ export const WithBricks: Story = {
 					</button>
 					<button
 						onClick={() => {
-							fighter.bricks.push(getRandomBrick());
+							fighter.bricks.addChild(getRandomBrick());
 							fighter.update();
 						}}
 					>

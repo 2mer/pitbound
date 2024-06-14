@@ -60,4 +60,8 @@ export @serializable('worldEvent.fighterEvent') class FighterEvent extends World
 		]
 	}
 
+	isBlocking(): boolean {
+		return this.fighters.values().some(f => f.isHostile && f.isAlive());
+	}
+
 }

@@ -17,15 +17,13 @@ export @serializable('ability.kill') class KillAbility extends Ability<Brick> {
 
 	cost = Tuple(HandBrick);
 
-	canClick(): boolean {
-
-		const match = this.closest(Fighter)!.bricks.getPattern(this.cost, Brick.canUseBrick);
+	canUse(): boolean {
+		const match = this.parent!.fighter.bricks.getPattern(this.cost, Brick.canUseBrick);
 		return match.ok;
 	}
 
-	onClick(): void {
-		const fighter = this.closest(Fighter)!;
-		const stage = fighter.stage;
+	onUse(): void {
+		const { fighter, stage } = this.parent!;
 
 		const match = fighter.bricks.getPattern(this.cost, Brick.canUseBrick);
 

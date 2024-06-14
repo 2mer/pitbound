@@ -2,13 +2,14 @@ import { serializable, serialize } from "@/system/Serialization";
 import { v4 } from "uuid";
 import { Nested } from "./Nested";
 import EventEmitter from "eventemitter3";
-import { World } from "./World";
+import type { World } from "./World";
 import Color from "color";
 import Icon from '@/assets/icons/ui/empty.png';
 import { Assets } from "pixi.js";
 
 export type WorldEventEvents = {
 	update: () => void;
+
 }
 
 Assets.load(Icon);
@@ -52,6 +53,7 @@ export @serializable('worldEvent') class WorldEvent<T extends WorldEventEvents =
 
 	onVisit() {
 		this.complete = true;
+		this.stage.startTurn();
 		this.world.persist(this);
 	}
 

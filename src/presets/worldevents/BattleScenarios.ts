@@ -9,11 +9,11 @@ import { Skull } from "../fighters/Skull";
 export type BattleScenario = { canGenerate(world: World, position: WorldPosition): boolean; generate(world: World, position: WorldPosition): BattleEvent; };
 const generateN = (n: number, generator: (i: number) => Fighter) => {
 	return ({
-		canGenerate(world: World, position: WorldPosition) {
+		canGenerate() {
 			return true;
 		},
 
-		generate(world: World, position: WorldPosition) {
+		generate() {
 			return new BattleEvent().addFighters(
 				...Array.from({ length: n }).fill(null).map((_, i) => generator(i))
 			);

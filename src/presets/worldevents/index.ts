@@ -1,12 +1,12 @@
 import { EventGenrator, World, WorldPosition } from "@/types/World";
-import { WorldEvent } from "@/types/WorldEvent";
+import type { WorldEvent } from "@/types/WorldEvent";
 import { EmptyEvent } from "./EmptyEvent";
 import { BattleScenarios } from "./BattleScenarios";
 import { R2, randomEntry } from "@/utils/PRandom";
 
 const BASE_WEIGHT = 10;
 
-export class SimpleGenerator<T extends typeof WorldEvent> implements EventGenrator<InstanceType<T>> {
+export class SimpleGenerator<T extends typeof WorldEvent<any>> implements EventGenrator<InstanceType<T>> {
 	clzz;
 
 	minDepth = 0;
@@ -19,7 +19,7 @@ export class SimpleGenerator<T extends typeof WorldEvent> implements EventGenrat
 		this.clzz = clzz;
 	}
 
-	canGenerate(world: World, position: WorldPosition): boolean {
+	canGenerate(_: World, position: WorldPosition): boolean {
 		if (position.depth < this.minDepth) return false;
 		if (position.depth > this.maxDepth) return false;
 
@@ -29,7 +29,7 @@ export class SimpleGenerator<T extends typeof WorldEvent> implements EventGenrat
 		return true;
 	}
 
-	generate(world: World, position: WorldPosition): InstanceType<T> {
+	generate(): InstanceType<T> {
 		return new (this.clzz)() as any;
 	}
 

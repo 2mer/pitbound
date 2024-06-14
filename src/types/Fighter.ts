@@ -11,6 +11,7 @@ import { postDeserialize, serializable, serialize } from "@/system/Serialization
 import { FighterEvent } from "@/presets/worldevents/FighterEvent";
 import { subs } from "@/utils/Subs";
 import { playSound } from "@/utils/SoundPlayer";
+import { CharacterController } from "./CharacterController";
 
 export type FighterEvents = {
 	update: () => void;
@@ -22,6 +23,7 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 	@serialize @related effects = new ComponentSystem<Effect<Fighter>>();
 	@serialize @related inventory = new ComponentSystem<Item<Fighter>>();
 	@serialize @related bricks = new ComponentSystem<Brick>();
+	@serialize @related controller: CharacterController = new CharacterController();
 
 	events = new EventEmitter<FighterEvents>();
 
@@ -36,7 +38,11 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 
 	@serialize private _isDead = false;
 
+	@serialize hasFled = false;
+
 	@serialize isHostile = false;
+
+	@serialize controllable = false;
 
 	constructor() {
 		super();
@@ -76,11 +82,21 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 		return this.event.fighters;
 	}
 
+	get fighter() {
+		return this;
+	}
+
 	die() {
 		this._isDead = true;
 		this.events.emit('death');
 		this.update();
 		playSound('die');
+	}
+
+	flee() {
+		this.hasFled = true;
+		this.update();
+		playSound('flee');
 	}
 
 	update() {
@@ -104,5 +120,9 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 	hostile() {
 		this.isHostile = true;
 		return this;
+	}
+
+	isTargetable() {
+		return this.isAlive() && !this.hasFled
 	}
 }

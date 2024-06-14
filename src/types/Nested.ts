@@ -37,7 +37,7 @@ export class Nested<TParent> {
 		}
 	}
 
-	onRemoved(p: TParent) {
+	onRemoved(_: TParent) {
 		this.parent = undefined;
 		this.isAdded = false;
 
@@ -46,19 +46,20 @@ export class Nested<TParent> {
 		}
 	}
 
-	closest<C extends abstract new (...args: any) => any>(clzz: C): InstanceType<C> | undefined {
-		if (!this.parent) return undefined;
+	// @deprecated due to circular dependencies
+	// closest<C extends abstract new (...args: any) => any>(clzz: C): InstanceType<C> | undefined {
+	// 	if (!this.parent) return undefined;
 
-		if ((this.parent as any) instanceof clzz) {
-			return this.parent as InstanceType<C>;
-		}
+	// 	if ((this.parent as any) instanceof clzz) {
+	// 		return this.parent as InstanceType<C>;
+	// 	}
 
-		if (this.parent instanceof Nested) {
-			return this.parent.closest(clzz)
-		}
+	// 	if (this.parent instanceof Nested) {
+	// 		return this.parent.closest(clzz)
+	// 	}
 
-		return undefined;
-	}
+	// 	return undefined;
+	// }
 
 
 	// util
