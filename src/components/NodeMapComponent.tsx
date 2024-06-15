@@ -14,7 +14,8 @@ import { mix } from '@/utils/Math';
 import { vec2 } from 'gl-matrix';
 import { StageContext } from './StageContext';
 import { World } from '@/types/World';
-import fragmentShader from './NodeMapFrag.frag?raw';
+import bgFragmentShader from './NodeMapBgFrag.frag?raw';
+import fgFragmentShader from './NodeMapFgFrag.frag?raw';
 
 export interface WorldState {
 	age: number;
@@ -272,19 +273,14 @@ const NodeMapComponent = Pixify(
 					}
 				}
 
-				const shader = new Filter({
+				const bgShader = new Filter({
 					glProgram: new GlProgram({
-						fragment: fragmentShader,
+						fragment: bgFragmentShader,
 						vertex: defaultFilterVert,
 					}),
 
 					resources: {
 						testUniforms: new UniformGroup({
-							uTest: {
-								value: new Float32Array([0, 0, 0, 0]),
-								type: 'vec4<f32>',
-							},
-
 							uWorld: {
 								value: new Float32Array([0, 0, 0, 0]),
 								type: 'vec4<f32>',
@@ -294,6 +290,47 @@ const NodeMapComponent = Pixify(
 								value: new Float32Array([11110, 11110]),
 								type: 'vec2<f32>',
 							},
+
+							uVision: {
+								value: new Float32Array([100, 100]),
+								type: 'vec2<f32>',
+							},
+
+							uPlayerPos: {
+								value: new Float32Array([0, 0]),
+								type: 'vec2<f32>',
+							},
+						}),
+					},
+				});
+
+				const fgShader = new Filter({
+					glProgram: new GlProgram({
+						fragment: fgFragmentShader,
+						vertex: defaultFilterVert,
+					}),
+
+					resources: {
+						testUniforms: new UniformGroup({
+							uWorld: {
+								value: new Float32Array([0, 0, 0, 0]),
+								type: 'vec4<f32>',
+							},
+
+							uResolution: {
+								value: new Float32Array([11110, 11110]),
+								type: 'vec2<f32>',
+							},
+
+							uVision: {
+								value: new Float32Array([100, 100]),
+								type: 'vec2<f32>',
+							},
+
+							uPlayerPos: {
+								value: new Float32Array([0, 0]),
+								type: 'vec2<f32>',
+							},
 						}),
 					},
 				});
@@ -301,8 +338,13 @@ const NodeMapComponent = Pixify(
 				const bg = new Graphics();
 				bg.rect(0, 0, 100, 100).fill(0xffffff).position.set(0, 0);
 
+				const fg = new Graphics();
+				fg.rect(0, 0, 100, 100).fill(0xffffff).position.set(0, 0);
+
 				bg.zIndex = -1;
+				fg.zIndex = 100;
 				app.stage.addChild(bg);
+				app.stage.addChild(fg);
 
 				const stageBounds = app.stage.getBounds();
 
@@ -311,39 +353,48 @@ const NodeMapComponent = Pixify(
 				bg.width = stageBounds.width;
 				bg.height = stageBounds.height;
 
+				fg.x = stageBounds.x;
+				fg.y = stageBounds.y;
+				fg.width = stageBounds.width;
+				fg.height = stageBounds.height;
+
 				function updateShaderViewport() {
+					const { vision } = stage.getCapabilities();
+					const { position } = world;
+
 					const visibleBounds = viewport.getVisibleBounds();
 
-					shader.resources.testUniforms.uniforms.uResolution =
-						new Float32Array([
-							viewport.screenWidth,
-							viewport.screenHeight,
-						]);
+					for (const shader of [bgShader, fgShader]) {
+						shader.resources.testUniforms.uniforms.uResolution =
+							new Float32Array([
+								viewport.screenWidth,
+								viewport.screenHeight,
+							]);
 
-					shader.resources.testUniforms.uniforms.uWorld =
-						new Float32Array([
-							visibleBounds.x,
-							visibleBounds.y,
-							visibleBounds.width,
-							visibleBounds.height,
-						]);
+						shader.resources.testUniforms.uniforms.uWorld =
+							new Float32Array([
+								visibleBounds.x,
+								visibleBounds.y,
+								visibleBounds.width,
+								visibleBounds.height,
+							]);
+
+						shader.resources.testUniforms.uniforms.uVision =
+							new Float32Array([vision.up, vision.down]);
+
+						shader.resources.testUniforms.uniforms.uPlayerPos =
+							new Float32Array([
+								position.horizontalIndex,
+								position.depth,
+							]);
+					}
 				}
 
 				viewport.on('moved', updateShaderViewport);
 				updateShaderViewport();
 
-				bg.filters = [shader];
-
-				const bounds = viewport.getBounds();
-
-				shader.resources.testUniforms.uniforms.uTest = new Float32Array(
-					[
-						bounds.left,
-						viewport.screenHeight - bounds.bottom,
-						bounds.width,
-						bounds.height,
-					]
-				);
+				bg.filters = [bgShader];
+				fg.filters = [fgShader];
 			},
 			[world]
 		);

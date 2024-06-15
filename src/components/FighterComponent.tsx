@@ -83,7 +83,9 @@ function FighterComponent({
 			app.stage.addChild(g);
 
 			return () => {
-				app.stage.removeChild(g);
+				if (app.stage) {
+					app.stage.removeChild(g);
+				}
 				g.destroy();
 			};
 		},

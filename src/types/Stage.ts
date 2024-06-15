@@ -7,6 +7,7 @@ import { World } from "./World";
 import { WorldEvent } from "./WorldEvent";
 import { FighterEvent } from "@/presets/worldevents/FighterEvent";
 import { playSound } from "@/utils/SoundPlayer";
+import { delay } from "@/lib/utils";
 
 export const Side = {
 	FRIENDLY: 'friendly',
@@ -69,7 +70,7 @@ export @serializable('stage') class Stage {
 		this.update();
 	}
 
-	endTurn() {
+	async endTurn() {
 		this.events.emit('turnEnd', { stage: this })
 
 		playSound('click');
@@ -79,35 +80,47 @@ export @serializable('stage') class Stage {
 		this.update();
 
 		if (!this.world.canMove()) {
-			const leftFighters = this.getEventFighters(this.world.leftEvent);
-			const rightFighters = this.getEventFighters(this.world.rightEvent);
-
-			[leftFighters, rightFighters].forEach(fighterGroup => {
-				fighterGroup.forEach(f => {
-					if (!f.controllable) {
-						f.controller.playTurn();
-					}
-				})
-			});
+			await this.aiAct();
 
 			this.startTurn();
 		}
 
 	}
 
-	startTurn() {
+	async aiAct() {
 		const leftFighters = this.getEventFighters(this.world.leftEvent);
 		const rightFighters = this.getEventFighters(this.world.rightEvent);
 
-		[leftFighters, rightFighters].forEach(fighterGroup => {
-			fighterGroup.forEach(f => {
+		for (const fighterGroup of [leftFighters, rightFighters]) {
+			for (const f of fighterGroup) {
+				if (!f.controllable) {
+					f.controller.playTurn();
+					await delay(100);
+				}
+
+			}
+		}
+	}
+
+	async startTurn() {
+		this.events.emit('turnStart', { stage: this });
+
+		await this.aiPrepare();
+	}
+
+	async aiPrepare() {
+		const leftFighters = this.getEventFighters(this.world.leftEvent);
+		const rightFighters = this.getEventFighters(this.world.rightEvent);
+
+		for (const fighterGroup of [leftFighters, rightFighters]) {
+			for (const f of fighterGroup) {
 				if (!f.controllable) {
 					f.controller.prepare();
+					await delay(100);
 				}
-			})
-		});
 
-		this.events.emit('turnStart', { stage: this });
+			}
+		}
 	}
 
 	getCapabilities() {

@@ -41,14 +41,16 @@ export @serializable('pitlin.ai') class PitlinController extends CharacterContro
 			const [hitAbility] = claw.abilities.$$(ScratchAbility);
 
 			const rEnemy = this.getRandomEnemy();
+			if (rEnemy) {
+				intent.harmful({
+					origin: claw,
+					target: rEnemy,
+					act() {
+						hitAbility.tryUseOn(rEnemy)
+					}
+				})
+			}
 
-			intent.harmful({
-				origin: claw,
-				target: rEnemy,
-				act() {
-					hitAbility.tryUseOn(rEnemy)
-				}
-			})
 		}
 
 		if (heart?.health <= 3 && Brick.canUseBrick(leg)) {

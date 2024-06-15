@@ -14,14 +14,23 @@ import SettingsIcon from '@/assets/icons/ui/settings.png';
 import NodeMapComponent from './NodeMapComponent';
 import { StagePixiOverlay } from './StagePixiOverlay';
 import { StageContext } from './StageContext';
+import useSWRMutation from 'swr/mutation';
+
+export function useTurns(stage: Stage) {
+	const nextTurnAction = useSWRMutation('next-turn', () => stage.endTurn());
+
+	return { nextTurnAction };
+}
 
 function StageComponent({ stage }: { stage: Stage }) {
 	const [mapOpen, setMapOpen] = useState(false);
 
+	const { nextTurnAction } = useTurns(stage);
+
 	useEffect(() => {
 		function handleSpace(e: KeyboardEvent) {
-			if (e.key === ' ') {
-				stage.endTurn();
+			if (e.key === ' ' && !nextTurnAction.isMutating) {
+				nextTurnAction.trigger();
 				e.preventDefault();
 				e.stopPropagation();
 			} else if (e.key === 'Escape') {
@@ -35,7 +44,7 @@ function StageComponent({ stage }: { stage: Stage }) {
 		return () => {
 			document.removeEventListener('keypress', handleSpace);
 		};
-	}, [stage]);
+	}, [stage, nextTurnAction.isMutating]);
 
 	const update = useForceUpdate();
 	useEventListener(stage.events, 'update', update);
@@ -178,8 +187,9 @@ function StageComponent({ stage }: { stage: Stage }) {
 								) : (
 									<Button
 										variant={'secondary'}
+										disabled={nextTurnAction.isMutating}
 										onClick={() => {
-											stage.endTurn();
+											nextTurnAction.trigger();
 										}}
 									>
 										End Turn
