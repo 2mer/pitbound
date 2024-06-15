@@ -83,7 +83,11 @@ function StageComponent({ stage }: { stage: Stage }) {
 						{/* action bar */}
 						<div className=' bg-black text-white w-full p-unit-4 grid grid-cols-3 font-barlow items-center'>
 							<div className='justify-self-start'>
-								T+{stage.turn}
+								{mapOpen ? (
+									<span>W+{stage.world.age}</span>
+								) : (
+									<span>T+{stage.turn}</span>
+								)}
 							</div>
 							<div className='justify-self-center text-center'>
 								{stage.world.position.depth}m

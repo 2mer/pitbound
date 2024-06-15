@@ -195,7 +195,9 @@ export function createPixi(
 			app.renderer.on('resize', handleResize);
 
 			return () => {
-				app.renderer.off('resize', handleResize);
+				if (app.renderer) {
+					app.renderer.off('resize', handleResize);
+				}
 			};
 		}, [app, ...deps]);
 	};

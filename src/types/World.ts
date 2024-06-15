@@ -75,6 +75,8 @@ export @serializable('world') class World extends Nested<Stage> {
 
 	moveTo(position: WorldPosition) {
 		this.position = position;
+		this.age++;
+		this.parent!.turn = 0;
 
 		const newEvent = this.getEventAt(position);
 
@@ -85,6 +87,7 @@ export @serializable('world') class World extends Nested<Stage> {
 		this.rightEvent.onVisit();
 
 		this.parent!.update();
+
 	}
 
 	positionToKey(position: WorldPosition) {
