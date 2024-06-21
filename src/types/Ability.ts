@@ -5,6 +5,7 @@ import { Keyword } from "./Keyword";
 import { Nested, related } from "./Nested";
 import Icon from '@/assets/icons/brick/unknown.png';
 import { INestFighter } from "./INest";
+import { v4 } from "uuid";
 
 export @serializable('ability') class Ability<T extends INestFighter> extends Nested<T> implements INestFighter {
 	@serialize name = 'Ability';
@@ -13,6 +14,8 @@ export @serializable('ability') class Ability<T extends INestFighter> extends Ne
 
 	@serialize @related keywords = new ComponentSystem<Keyword<Ability<T>>>();
 	@serialize @related components = new ComponentSystem<Component<Ability<T>>>();
+
+	@serialize id = v4();
 
 	cost?: (typeof Brick)[]
 

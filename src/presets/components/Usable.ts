@@ -32,8 +32,8 @@ export @serializable('component.usable') class Usable<T extends INestStage & INe
 	}
 
 	onRemoved(target: T): void {
-		super.onAdded(target);
-
 		this.parent!.stage.events.off('turnStart', this.onTurnStart, this)
+
+		super.onAdded(target);
 	}
 }

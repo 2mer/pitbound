@@ -1,6 +1,5 @@
 import { Brick } from "./Brick";
 import DummyImage from '../assets/icons/fighter/dummy16.png';
-import { Item } from "./Item";
 import Color from "color";
 import { Effect } from "./Effect";
 import { v4 } from "uuid";
@@ -21,7 +20,6 @@ export type FighterEvents = {
 export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 	@serialize id = v4();
 	@serialize @related effects = new ComponentSystem<Effect<Fighter>>();
-	@serialize @related inventory = new ComponentSystem<Item<Fighter>>();
 	@serialize @related bricks = new ComponentSystem<Brick>();
 	@serialize @related controller: CharacterController = new CharacterController();
 
@@ -87,6 +85,8 @@ export @serializable('fighter') class Fighter extends Nested<FighterEvent> {
 	}
 
 	die() {
+		if (this.isDead()) return;
+
 		this._isDead = true;
 		this.events.emit('death');
 		this.update();

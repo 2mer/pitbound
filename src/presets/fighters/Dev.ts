@@ -3,7 +3,7 @@ import Image from '../../assets/icons/fighter/dev.png';
 import Color from "color";
 import { HandBrick } from "../bricks/HandBrick";
 import { InspectAbility } from "../abilities/InspectAbility";
-import { serializable, serialize } from "@/system/Serialization";
+import { serializable } from "@/system/Serialization";
 import { LogStageAbility } from "../abilities/LogStageAbility";
 import { LegBrick } from "../bricks/LegBrick";
 import { MoveAbility } from "../abilities/MoveAbility";
@@ -13,9 +13,6 @@ export @serializable('fighter.dev') class Dev extends Fighter {
 	name = 'Dev';
 	image = Image;
 	color = new Color(0xa6fcdb);
-
-	@serialize
-	test = 5;
 
 	controllable: boolean = true;
 

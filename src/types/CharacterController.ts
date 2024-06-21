@@ -21,13 +21,10 @@ export @serializable('characterController') class CharacterController extends Ne
 	}
 
 	prepare() {
-		console.log('prepare intent!')
 		this.intent = this.createIntent();
 	}
 
 	playTurn() {
-		console.log('act intent!')
-		console.log(this.intent.intents)
 		this.intent.act();
 	};
 

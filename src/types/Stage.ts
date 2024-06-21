@@ -8,6 +8,7 @@ import { WorldEvent } from "./WorldEvent";
 import { FighterEvent } from "@/presets/worldevents/FighterEvent";
 import { playSound } from "@/utils/SoundPlayer";
 import { delay } from "@/lib/utils";
+import { Cursor } from "./Cursor";
 
 export const Side = {
 	FRIENDLY: 'friendly',
@@ -42,6 +43,8 @@ export @serializable('stage') class Stage {
 
 	@serialize world = new World();
 
+	@serialize cursor = new Cursor();
+
 	constructor() {
 		this.init();
 	}
@@ -49,6 +52,7 @@ export @serializable('stage') class Stage {
 	@postDeserialize
 	init() {
 		this.world.onAdded(this);
+		this.cursor.onAdded(this);
 	}
 
 	getSide(fighter: Fighter) {

@@ -10,11 +10,17 @@ import TargetingIndicator from './TargetingIndicator';
 import { AnimatePresence, motion } from 'framer-motion';
 import IconButton from './IconButton';
 import MapIcon from '@/assets/icons/ui/map.png';
+import BagIcon from '@/assets/icons/brick/bag.png';
+import BagOpenIcon from '@/assets/icons/brick/bagOpen.png';
 import SettingsIcon from '@/assets/icons/ui/settings.png';
 import NodeMapComponent from './NodeMapComponent';
 import { StagePixiOverlay } from './StagePixiOverlay';
 import { StageContext } from './StageContext';
 import useSWRMutation from 'swr/mutation';
+import InventoryContext from './InventoryContext';
+import { useHotkeys } from '@mantine/hooks';
+import CursorComponent from './CursorComponent';
+import ScrollContext from './ScrollContext';
 
 export function useTurns(stage: Stage) {
 	const nextTurnAction = useSWRMutation('next-turn', () => stage.endTurn());
@@ -24,30 +30,43 @@ export function useTurns(stage: Stage) {
 
 function StageComponent({ stage }: { stage: Stage }) {
 	const [mapOpen, setMapOpen] = useState(false);
+	const [inventoryOpen, setInventoryOpen] = InventoryContext.use();
 
 	const { nextTurnAction } = useTurns(stage);
 
-	useEffect(() => {
-		function handleSpace(e: KeyboardEvent) {
-			if (e.key === ' ' && !nextTurnAction.isMutating) {
-				nextTurnAction.trigger();
-				e.preventDefault();
-				e.stopPropagation();
-			} else if (e.key === 'Escape') {
+	useHotkeys([
+		[
+			'Escape',
+			() => {
 				setMapOpen(false);
-			} else if (e.key === 'm' || e.key === 'M') {
-				setMapOpen((m) => !m);
-			}
-		}
-		document.addEventListener('keypress', handleSpace);
+				setInventoryOpen(false);
 
-		return () => {
-			document.removeEventListener('keypress', handleSpace);
-		};
-	}, [stage, nextTurnAction.isMutating]);
+				if (stage.targeting) {
+					stage.stopTargeting();
+				}
+			},
+		],
+		['m', () => setMapOpen((o) => !o)],
+		['i', () => setInventoryOpen((o) => !o)],
+		['b', () => setInventoryOpen((o) => !o)],
+		[
+			'space',
+			() => {
+				if (stage.world.canMove()) {
+					setMapOpen((o) => !o);
+				} else {
+					if (!nextTurnAction.isMutating) {
+						nextTurnAction.trigger();
+					}
+				}
+			},
+		],
+	]);
 
 	const update = useForceUpdate();
 	useEventListener(stage.events, 'update', update);
+	useEventListener(stage.cursor.slot.events, 'itemPlaced', update);
+	useEventListener(stage.cursor.slot.events, 'itemRemoved', update);
 
 	const isTargeting = Boolean(stage.targeting);
 
@@ -72,6 +91,8 @@ function StageComponent({ stage }: { stage: Stage }) {
 		setMapOpen(false);
 	}, [stage.world.position]);
 
+	const { ref: scrollRef } = ScrollContext.use();
+
 	return (
 		<StagePixiOverlay.Provider>
 			<StageContext.Provider stage={stage}>
@@ -94,6 +115,11 @@ function StageComponent({ stage }: { stage: Stage }) {
 							</div>
 							<div className='justify-self-end flex gap-unit-4'>
 								<IconButton
+									icon={inventoryOpen ? BagOpenIcon : BagIcon}
+									onClick={() => setInventoryOpen((p) => !p)}
+									tooltip={'Inventory (I/B)'}
+								/>
+								<IconButton
 									icon={MapIcon}
 									onClick={() => setMapOpen((p) => !p)}
 									tooltip={'Map (M)'}
@@ -112,9 +138,10 @@ function StageComponent({ stage }: { stage: Stage }) {
 							className='flex-1 min-h-0 relative'
 						>
 							<div
+								ref={scrollRef}
 								className={cn(
-									'h-full w-full relative overflow-auto'
-									// mapOpen ? 'overflow-hidden' : 'overflow-auto'
+									'h-full w-full relative overflow-auto',
+									!stage.cursor.slot.isEmpty() && 'noCursor'
 								)}
 								style={{ scrollbarGutter: 'stable' }}
 							>
@@ -202,10 +229,12 @@ function StageComponent({ stage }: { stage: Stage }) {
 							</div>
 						</div>
 					</div>
+
+					<CursorComponent cursor={stage.cursor} />
 				</TargetingContext.Provider>
 			</StageContext.Provider>
 		</StagePixiOverlay.Provider>
 	);
 }
 
-export default StageComponent;
+export default ScrollContext.wrap(InventoryContext.wrap(StageComponent));

@@ -37,6 +37,11 @@ export @serializable('worldEvent.fighterEvent') class FighterEvent extends World
 		return this;
 	}
 
+	swapFighter(a: Fighter, b: Fighter) {
+		this.fighters.swap(a, b);
+		return this;
+	}
+
 	getAbove(fighter: Fighter, minDistance: number = 1, maxDistance: number = 1) {
 		const allies = this.fighters.values();
 		const fIndex = allies.indexOf(fighter);

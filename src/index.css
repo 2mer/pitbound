@@ -109,3 +109,11 @@
 .targeting-big {
 	@apply animate-targeting-big;
 }
+
+.noCursor {
+	cursor: none !important;
+
+	& * {
+		cursor: none !important;
+	}
+}

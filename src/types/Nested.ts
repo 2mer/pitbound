@@ -38,29 +38,27 @@ export class Nested<TParent> {
 	}
 
 	onRemoved(_: TParent) {
-		this.parent = undefined;
-		this.isAdded = false;
-
 		if (this.related) {
 			this.related.forEach(r => r.onRemoved(this));
 		}
+
+		this.parent = undefined;
+		this.isAdded = false;
 	}
 
-	// @deprecated due to circular dependencies
-	// closest<C extends abstract new (...args: any) => any>(clzz: C): InstanceType<C> | undefined {
-	// 	if (!this.parent) return undefined;
+	closest<C extends abstract new (...args: any) => any>(clzz: C): InstanceType<C> | undefined {
+		if (!this.parent) return undefined;
 
-	// 	if ((this.parent as any) instanceof clzz) {
-	// 		return this.parent as InstanceType<C>;
-	// 	}
+		if ((this.parent as any) instanceof clzz) {
+			return this.parent as InstanceType<C>;
+		}
 
-	// 	if (this.parent instanceof Nested) {
-	// 		return this.parent.closest(clzz)
-	// 	}
+		if (this.parent instanceof Nested) {
+			return this.parent.closest(clzz)
+		}
 
-	// 	return undefined;
-	// }
-
+		return undefined;
+	}
 
 	// util
 
@@ -92,6 +90,24 @@ export @serializable('children') class Children<T extends Nested<any>> extends N
 
 	addAll(...items: T[]) {
 		items.forEach(i => this.addChild(i));
+	}
+
+	swap(a: T, b: T) {
+		const i = this.items.indexOf(a);
+
+		if (i > -1) {
+			if (this.isAdded) {
+				a.onRemoved(this.parent);
+				this.events.emit('childRemoved', a);
+			}
+
+			this.items[i] = b;
+
+			if (this.isAdded) {
+				b.onAdded(this.parent);
+				this.events.emit('childAdded', b);
+			}
+		}
 	}
 
 	addChild<C extends T>(item: C) {
@@ -134,9 +150,10 @@ export @serializable('children') class Children<T extends Nested<any>> extends N
 	}
 
 	onRemoved(p: NestedParent<T>): void {
+		this.items.forEach(item => item.onRemoved(p));
+
 		super.onRemoved(p);
 
-		this.items.forEach(item => item.onRemoved(p));
 	}
 
 	isEmpty() {

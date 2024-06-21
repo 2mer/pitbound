@@ -13,6 +13,7 @@ import { Usable } from '@/presets/components/Usable';
 import { playSound } from '@/utils/SoundPlayer';
 import { serializable, serialize } from '@/system/Serialization';
 import { INestFighter, INestStage } from './INest';
+import type { BrickSlot } from '@/presets/slot/BrickSlot';
 
 export type ActionCtx = {
 	stage: Stage;
@@ -34,6 +35,7 @@ export @serializable('brick') class Brick extends Nested<Fighter> implements INe
 	@serialize @related keywords = new ComponentSystem<Keyword<Brick>>();
 	@serialize @related components = new ComponentSystem<Component<Brick>>().transform(c => c.addAll(new Usable<Brick>()));
 	@serialize @related abilities = new ComponentSystem<Ability<Brick>>();
+	@serialize @related inventory = new ComponentSystem<BrickSlot>();
 	events = new EventEmitter<Events>();
 
 	get $usable() {
