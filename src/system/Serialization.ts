@@ -20,9 +20,9 @@ export function createSerialization() {
 	const protoToId = new Map<Function, string>();
 	const { getOrCreateMeta } = createConstuctorMeta<SerializationMeta>(() => ({ type: '', keys: [] }))
 
-	function serialize(object: any): any {
+	function serialize(object: any): SerializationDTO | SerializationDTO[] {
 		if (Array.isArray(object)) {
-			return object.map(v => serialize(v));
+			return object.map(v => serialize(v)) as SerializationDTO[];
 		}
 
 

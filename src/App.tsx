@@ -1,9 +1,13 @@
-import BattleView from './views/BattleView';
+import { Router } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
+import Routes from './views/Routes';
 
 function App() {
 	return (
 		<div style={{ position: 'absolute', inset: 0 }}>
-			<BattleView />
+			<Router hook={useHashLocation}>
+				<Routes />
+			</Router>
 		</div>
 	);
 }
