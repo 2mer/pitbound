@@ -1,15 +1,21 @@
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/db';
 import calc from '@/utils/calc';
-import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 
 function SavesView() {
 	const saves = useLiveQuery(() => db.saves.toArray());
 
 	return (
-		<div className='flex flex-col gap-unit-4'>
+		<div className='flex flex-col gap-unit-4 p-unit-4'>
 			<div>Saves</div>
 			{/* actions */}
 			<div>
@@ -29,10 +35,31 @@ function SavesView() {
 							className='className="bg-white shadow-md rounded-lg overflow-hidden transition-all ease-in-out duration-300 hover:shadow-xl'
 						>
 							<Link to={`/saves/${save.name}`}>
-								<CardTitle>{save.name}</CardTitle>
-								<CardContent>thumbnail image</CardContent>
-								<CardFooter>
-									{save.updated_at.toLocaleString()}
+								<CardHeader>
+									<CardTitle>{save.name}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div>image</div>
+									<div>
+										Last save:{' '}
+										{save.updated_at.toLocaleString()}
+									</div>
+								</CardContent>
+								<CardFooter className='flex flex-row-reverse'>
+									<Button
+										variant='destructive'
+										onClick={(e) => {
+											e.stopPropagation();
+											e.preventDefault();
+
+											db.saves
+												.where('id')
+												.equals(save.id)
+												.delete();
+										}}
+									>
+										delete
+									</Button>
 								</CardFooter>
 							</Link>
 						</Card>

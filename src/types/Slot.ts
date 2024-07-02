@@ -18,9 +18,11 @@ export @serializable('slot') class Slot<T = any> extends Nested<T> {
 	removeItem() {
 		const old = this.item;
 
-		this.item = new AirItem();
+		if (!this.isEmpty()) {
+			this.item = new AirItem();
 
-		this.events.emit('itemRemoved', old);
+			this.events.emit('itemRemoved', old);
+		}
 
 		return old;
 	}
@@ -39,11 +41,11 @@ export @serializable('slot') class Slot<T = any> extends Nested<T> {
 		return old;
 	}
 
-	canPlaceItem(item: Item) {
+	canPlaceItem(_item: Item) {
 		return true;
 	}
 
-	canRemoveItem(item: Item) {
+	canRemoveItem(_item: Item) {
 		return true;
 	}
 

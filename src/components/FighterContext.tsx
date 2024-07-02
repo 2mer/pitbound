@@ -1,9 +1,9 @@
 import { Fighter } from '../types/Fighter';
 import { createContext } from '@sgty/kontext-react';
-import useConst from '@/hooks/useConst';
+import { useMemo } from 'react';
 
 export const FighterContext = createContext(
 	({ fighter }: { fighter: Fighter }) => {
-		return useConst(() => fighter);
+		return useMemo(() => fighter, [fighter]);
 	}
 );

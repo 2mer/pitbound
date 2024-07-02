@@ -37,6 +37,7 @@ function NewGameView() {
 
 	const onSubmit: SubmitHandler<NewGameFormValues> = async ({ slotName }) => {
 		const stage = createStarterStage();
+		stage.saveId = slotName;
 
 		await db.saves.add({
 			data: JSON.stringify(Serialization.serialize(stage)),

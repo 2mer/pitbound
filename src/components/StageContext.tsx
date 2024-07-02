@@ -1,7 +1,7 @@
-import useConst from '@/hooks/useConst';
 import { createContext } from '@sgty/kontext-react';
 import { Stage } from '../types/Stage';
+import { useMemo } from 'react';
 
 export const StageContext = createContext(({ stage }: { stage: Stage }) => {
-	return useConst(() => stage);
+	return useMemo(() => stage, [stage]);
 });

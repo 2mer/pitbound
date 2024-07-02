@@ -1,5 +1,4 @@
 import { Ability } from "@/types/Ability";
-import { Attacker } from "../components/Attacker";
 import Icon from '@/assets/icons/ability/flee.png';
 import { Tuple } from "@/types/Tuple";
 import { serializable } from "@/system/Serialization";
@@ -14,13 +13,6 @@ export @serializable('ability.flee') class FleeAbility<T extends INestFighter> e
 
 	constructor() {
 		super();
-		this.components.addAll(
-			new Attacker()
-		)
-	}
-
-	get $attacker() {
-		return this.components.$(Attacker);
 	}
 
 	cost = Tuple(LegBrick);
@@ -37,6 +29,6 @@ export @serializable('ability.flee') class FleeAbility<T extends INestFighter> e
 	}
 
 	getDescription(): string {
-		return `Damage targeted brick for ${this.$attacker!.attack}`
+		return `Flee from combat`
 	}
 }

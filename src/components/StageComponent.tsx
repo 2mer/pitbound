@@ -21,6 +21,9 @@ import InventoryContext from './InventoryContext';
 import { useHotkeys } from '@mantine/hooks';
 import CursorComponent from './CursorComponent';
 import ScrollContext from './ScrollContext';
+import { FighterEvent } from '@/presets/worldevents/FighterEvent';
+import { Dev } from '@/presets/fighters/Dev';
+import { useLocation } from 'wouter';
 
 export function useTurns(stage: Stage) {
 	const nextTurnAction = useSWRMutation('next-turn', () => stage.endTurn());
@@ -31,6 +34,7 @@ export function useTurns(stage: Stage) {
 function StageComponent({ stage }: { stage: Stage }) {
 	const [mapOpen, setMapOpen] = useState(false);
 	const [inventoryOpen, setInventoryOpen] = InventoryContext.use();
+	const [, setLocation] = useLocation();
 
 	const { nextTurnAction } = useTurns(stage);
 
@@ -93,6 +97,25 @@ function StageComponent({ stage }: { stage: Stage }) {
 
 	const { ref: scrollRef } = ScrollContext.use();
 
+	useEffect(() => {
+		const dev = {
+			stage: stage,
+
+			summon: () => {
+				(stage.world.leftEvent as FighterEvent).addFighters(new Dev());
+				stage.update();
+			},
+		};
+
+		// @ts-ignore
+		window.dev = dev;
+
+		return () => {
+			// @ts-ignore
+			window.dev = undefined;
+		};
+	}, []);
+
 	return (
 		<StagePixiOverlay.Provider>
 			<StageContext.Provider stage={stage}>
@@ -126,7 +149,7 @@ function StageComponent({ stage }: { stage: Stage }) {
 								/>
 								<IconButton
 									icon={SettingsIcon}
-									onClick={() => {}}
+									onClick={() => setLocation('/')}
 									tooltip={'Options (O)'}
 								/>
 							</div>

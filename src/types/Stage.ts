@@ -1,7 +1,7 @@
 import EventEmitter from "eventemitter3";
 import { Fighter } from "./Fighter";
 import type { Targeting } from "./Targeting";
-import { postDeserialize, serializable, serialize } from "@/system/Serialization";
+import Serialization, { postDeserialize, serializable, serialize } from "@/system/Serialization";
 import { v4 } from "uuid";
 import { World } from "./World";
 import { WorldEvent } from "./WorldEvent";
@@ -9,6 +9,7 @@ import { FighterEvent } from "@/presets/worldevents/FighterEvent";
 import { playSound } from "@/utils/SoundPlayer";
 import { delay } from "@/lib/utils";
 import { Cursor } from "./Cursor";
+import { db } from "@/db";
 
 export const Side = {
 	FRIENDLY: 'friendly',
@@ -29,6 +30,8 @@ type Events = {
 
 
 export @serializable('stage') class Stage {
+
+	@serialize saveId = 'unset'
 
 	test = 'stage';
 	events = new EventEmitter<Events>();
@@ -53,6 +56,10 @@ export @serializable('stage') class Stage {
 	init() {
 		this.world.onAdded(this);
 		this.cursor.onAdded(this);
+
+		if (!this.world.canMove()) {
+			this.startTurn();
+		}
 	}
 
 	getSide(fighter: Fighter) {
@@ -86,9 +93,8 @@ export @serializable('stage') class Stage {
 		if (!this.world.canMove()) {
 			await this.aiAct();
 
-			this.startTurn();
+			this.save();
 		}
-
 	}
 
 	async aiAct() {
@@ -156,5 +162,9 @@ export @serializable('stage') class Stage {
 
 	onLose() {
 		this.events.emit('lose');
+	}
+
+	save() {
+		db.saves.where('name').equals(this.saveId).modify({ data: JSON.stringify(Serialization.serialize(this)), updated_at: new Date() })
 	}
 }

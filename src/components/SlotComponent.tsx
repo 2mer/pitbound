@@ -41,6 +41,8 @@ function SlotComponent({ slot }: { slot: Slot }) {
 						slot.swapSlot(cursorSlot);
 
 						playSound('click');
+
+						stage.save();
 					}}
 				>
 					{slot.isEmpty() ? (
