@@ -1,18 +1,20 @@
 import { Route } from 'wouter';
 import MainMenu from './MainMenu';
-import SavesView from './SavesView';
-import SettingsView from './SettingsView';
-import NewGameView from './NewGameView';
-import GameView from './GameView';
+import { lazy } from 'react';
+
+const LazySettingsView = lazy(() => import('./SettingsView'));
+const LazyNewGameView = lazy(() => import('./NewGameView'));
+const LazySavesView = lazy(() => import('./SavesView'));
+const LazyGameView = lazy(() => import('./GameView'));
 
 function Routes() {
 	return (
 		<>
 			<Route path='/' component={MainMenu} />
-			<Route path='/settings' component={SettingsView} />
-			<Route path='/new-game' component={NewGameView} />
-			<Route path='/saves' component={SavesView} />
-			<Route path='/saves/:slot' component={GameView} />
+			<Route path='/settings' component={LazySettingsView} />
+			<Route path='/new-game' component={LazyNewGameView} />
+			<Route path='/saves' component={LazySavesView} />
+			<Route path='/saves/:slot' component={LazyGameView} />
 		</>
 	);
 }

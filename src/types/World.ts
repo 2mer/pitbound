@@ -115,7 +115,7 @@ export @serializable('world') class World extends Nested<Stage> {
 		return V.perlinNoise(V.from(position.depth, position.horizontalIndex));
 	}
 
-	getCycleAt(position: WorldPosition) {
+	getCycleAt(_position: WorldPosition) {
 		return 0;
 	}
 

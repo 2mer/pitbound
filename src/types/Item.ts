@@ -17,10 +17,10 @@ export @serializable('item') class Item extends Nested<Slot> {
 
 	@serialize equipped = false;
 
-	onEquip(slot: EquipmentSlot) {
+	onEquip(_slot: EquipmentSlot) {
 		this.equipped = true;
 	}
-	onUnEquip(slot: EquipmentSlot) {
+	onUnEquip(_slot: EquipmentSlot) {
 		this.equipped = false;
 	}
 }

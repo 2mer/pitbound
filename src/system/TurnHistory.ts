@@ -5,6 +5,6 @@ export class TurnHistory {
 	entries: string[] = [];
 
 	add(stage: Stage) {
-		this.entries.push(Serialization.serialize(stage));
+		this.entries.push(JSON.stringify(Serialization.serialize(stage)));
 	}
 }
