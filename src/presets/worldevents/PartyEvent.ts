@@ -9,6 +9,4 @@ export @serializable('worldEvent.partyEvent') class PartyEvent extends FighterEv
 
 		this.events.on('allFightersDead', () => this.stage.onLose())
 	}
-
-
 }
