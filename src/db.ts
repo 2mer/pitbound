@@ -6,7 +6,8 @@ export interface SaveEntry {
 	data: string,
 	created_at: Date,
 	updated_at: Date,
-	metadata: any
+	metadata: any,
+	version: string,
 }
 
 export const db = new Dexie('GameDB') as Dexie & {
@@ -15,5 +16,5 @@ export const db = new Dexie('GameDB') as Dexie & {
 
 
 db.version(1).stores({
-	saves: '++id,name,data,created_at,updated_at,metadata'
+	saves: '++id,name,data,created_at,updated_at,metadata,version'
 })

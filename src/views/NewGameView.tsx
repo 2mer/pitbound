@@ -15,6 +15,7 @@ import { PartyEvent } from '@/presets/worldevents/PartyEvent';
 import { Collector } from '@/presets/fighters/Collector';
 import { Pitling } from '@/presets/fighters/Pitling';
 import Serialization from '@/system/Serialization';
+import meta from '@/meta';
 
 type NewGameFormValues = {
 	slotName: string;
@@ -45,6 +46,7 @@ function NewGameView() {
 			created_at: new Date(),
 			updated_at: new Date(),
 			metadata: {},
+			version: meta.version,
 		});
 
 		setLocation(`/saves/${slotName}`);
